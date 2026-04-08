@@ -1,0 +1,3017 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FixFlow — Техническое задание</title>
+<style>
+  :root {
+    --primary: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #eff6ff;
+    --secondary: #0f172a;
+    --accent: #06b6d4;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-700: #334155;
+    --gray-900: #0f172a;
+    --sidebar-w: 280px;
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--gray-50);
+    color: var(--gray-700);
+    line-height: 1.6;
+    display: flex;
+  }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--secondary);
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #sidebar::-webkit-scrollbar { width: 4px; }
+  #sidebar::-webkit-scrollbar-track { background: transparent; }
+  #sidebar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .sidebar-logo .logo-mark {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; color: #fff; font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .logo-text { color: #fff; font-size: 18px; font-weight: 700; }
+  .logo-sub { color: var(--gray-400); font-size: 11px; letter-spacing: .5px; text-transform: uppercase; }
+
+  .sidebar-meta {
+    padding: 12px 20px 16px;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .meta-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #1e293b;
+    color: var(--gray-400);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+  }
+
+  .meta-badge span { color: #94a3b8; }
+
+  .sidebar-nav { padding: 12px 0 24px; flex: 1; }
+
+  .nav-section-label {
+    padding: 10px 20px 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 13.5px;
+    transition: all .15s;
+    border-left: 2px solid transparent;
+  }
+
+  .nav-item:hover {
+    color: #fff;
+    background: #1e293b;
+    border-left-color: var(--primary);
+  }
+
+  .nav-item.active {
+    color: #fff;
+    background: #1e293b;
+    border-left-color: var(--primary);
+  }
+
+  .nav-num {
+    width: 20px; height: 20px;
+    background: #1e293b;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gray-400);
+    flex-shrink: 0;
+  }
+
+  /* ── MAIN ── */
+  #main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    min-height: 100vh;
+  }
+
+  /* ── TOP HEADER ── */
+  #top-header {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 48px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+
+  .header-left h1 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gray-900);
+  }
+
+  .header-left p {
+    font-size: 12px;
+    color: var(--gray-400);
+  }
+
+  .header-badges { display: flex; gap: 8px; align-items: center; }
+
+  .hbadge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .hbadge-blue { background: #eff6ff; color: var(--primary); }
+  .hbadge-green { background: #ecfdf5; color: var(--success); }
+  .hbadge-gray { background: var(--gray-100); color: var(--gray-500); }
+
+  /* ── CONTENT ── */
+  #content {
+    padding: 40px 48px 80px;
+    max-width: 1080px;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 60%, #0c1a2e 100%);
+    border-radius: 16px;
+    padding: 52px 52px 48px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(37,99,235,.25) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 30%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(6,182,212,.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .cover-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(37,99,235,.2);
+    border: 1px solid rgba(37,99,235,.4);
+    color: #93c5fd;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .cover h1 {
+    font-size: 42px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 10px;
+    position: relative; z-index: 1;
+  }
+
+  .cover h1 span { color: #60a5fa; }
+
+  .cover-subtitle {
+    font-size: 16px;
+    color: #94a3b8;
+    margin-bottom: 32px;
+    max-width: 580px;
+    position: relative; z-index: 1;
+  }
+
+  .cover-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    position: relative; z-index: 1;
+  }
+
+  .cover-meta-item {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .cover-meta-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: #64748b;
+    margin-bottom: 4px;
+  }
+
+  .cover-meta-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e2e8f0;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 48px;
+    scroll-margin-top: 80px;
+  }
+
+  .section-header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  .section-num {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .section-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gray-900);
+  }
+
+  .section-header p {
+    font-size: 13px;
+    color: var(--gray-400);
+    margin-top: 1px;
+  }
+
+  h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin: 24px 0 12px;
+  }
+
+  h3:first-child { margin-top: 0; }
+
+  p { margin-bottom: 12px; color: var(--gray-700); font-size: 14px; }
+
+  /* ── CARDS ── */
+  .card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .card-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .icon-blue { background: #eff6ff; color: var(--primary); }
+  .icon-green { background: #ecfdf5; color: var(--success); }
+  .icon-orange { background: #fff7ed; color: #f97316; }
+  .icon-purple { background: #faf5ff; color: #8b5cf6; }
+  .icon-cyan { background: #ecfeff; color: var(--accent); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .table-wrap thead {
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .table-wrap th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--gray-500);
+  }
+
+  .table-wrap td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .table-wrap tr:last-child td { border-bottom: none; }
+
+  .table-wrap tr:hover td { background: var(--gray-50); }
+
+  code {
+    background: #f1f5f9;
+    color: #0284c7;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 12px;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .badge-blue { background: #eff6ff; color: var(--primary); }
+  .badge-green { background: #ecfdf5; color: #059669; }
+  .badge-yellow { background: #fffbeb; color: #d97706; }
+  .badge-red { background: #fef2f2; color: #dc2626; }
+  .badge-gray { background: var(--gray-100); color: var(--gray-500); }
+  .badge-purple { background: #faf5ff; color: #7c3aed; }
+  .badge-cyan { background: #ecfeff; color: #0891b2; }
+  .badge-orange { background: #fff7ed; color: #ea580c; }
+
+  /* ── ROLE CARDS ── */
+  .role-card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .role-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .role-card.customer::before { background: var(--primary); }
+  .role-card.manager::before { background: var(--warning); }
+  .role-card.executor::before { background: var(--success); }
+
+  .role-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 6px;
+  }
+
+  .role-sub { font-size: 12px; color: var(--gray-400); margin-bottom: 14px; }
+
+  ul.feature-list { list-style: none; }
+
+  ul.feature-list li {
+    font-size: 13px;
+    color: var(--gray-700);
+    padding: 5px 0;
+    padding-left: 18px;
+    position: relative;
+  }
+
+  ul.feature-list li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-size: 10px;
+    top: 7px;
+  }
+
+  /* ── STATUS FLOW ── */
+  .status-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+  }
+
+  .status-node {
+    display: flex; flex-direction: column; align-items: center;
+    min-width: 90px;
+  }
+
+  .status-circle {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .status-label { font-size: 11px; font-weight: 600; color: var(--gray-700); text-align: center; }
+  .status-sub { font-size: 10px; color: var(--gray-400); text-align: center; margin-top: 2px; }
+
+  .status-arrow {
+    flex-shrink: 0;
+    width: 36px;
+    height: 2px;
+    background: var(--gray-200);
+    position: relative;
+    margin: 0 4px;
+    margin-bottom: 28px;
+  }
+
+  .status-arrow::after {
+    content: '';
+    position: absolute;
+    right: -1px; top: -4px;
+    border: 5px solid transparent;
+    border-left-color: var(--gray-300);
+  }
+
+  /* ── ARCH DIAGRAM ── */
+  .arch-box {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .arch-layer {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 8px;
+  }
+
+  .arch-layer-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray-400);
+    margin-bottom: 10px;
+  }
+
+  .arch-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  .arch-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .chip-blue { background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; }
+  .chip-green { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+  .chip-orange { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
+  .chip-purple { background: #faf5ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+  .chip-gray { background: var(--gray-100); color: var(--gray-500); border: 1px solid var(--gray-200); }
+  .chip-cyan { background: #ecfeff; color: #0891b2; border: 1px solid #a5f3fc; }
+
+  /* ── API ── */
+  .api-endpoint {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+
+  .api-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--gray-100);
+    background: var(--gray-50);
+  }
+
+  .method {
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: monospace;
+    min-width: 54px;
+    text-align: center;
+  }
+
+  .method-post { background: #ecfdf5; color: #059669; }
+  .method-get { background: #eff6ff; color: var(--primary); }
+  .method-patch { background: #fffbeb; color: #d97706; }
+  .method-delete { background: #fef2f2; color: #dc2626; }
+  .method-put { background: #faf5ff; color: #7c3aed; }
+
+  .api-path {
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 13px;
+    color: var(--gray-900);
+    font-weight: 600;
+  }
+
+  .api-desc {
+    font-size: 12px;
+    color: var(--gray-400);
+    margin-left: auto;
+  }
+
+  .api-body { padding: 12px 18px; font-size: 13px; color: var(--gray-600); }
+
+  /* ── ANALYTICS ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+
+  .kpi-card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--gray-900);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .kpi-label { font-size: 11px; color: var(--gray-400); font-weight: 500; }
+
+  .kpi-trend {
+    font-size: 11px;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+
+  .trend-up { color: var(--success); }
+  .trend-down { color: var(--danger); }
+
+  /* ── CHART MOCK ── */
+  .chart-mock {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+
+  .chart-title { font-size: 13px; font-weight: 700; color: var(--gray-900); margin-bottom: 16px; }
+
+  .bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 100px; }
+
+  .bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+  .bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+  }
+
+  .bar-label { font-size: 10px; color: var(--gray-400); text-align: center; }
+
+  .pie-mock {
+    display: flex; align-items: center; gap: 24px;
+  }
+
+  .pie-circle {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    background: conic-gradient(
+      #2563eb 0% 35%,
+      #10b981 35% 60%,
+      #f59e0b 60% 78%,
+      #ef4444 78% 88%,
+      #8b5cf6 88% 100%
+    );
+    flex-shrink: 0;
+  }
+
+  .pie-legend { flex: 1; }
+
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--gray-700);
+    margin-bottom: 6px;
+  }
+
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 13px;
+  }
+
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { flex: 1; }
+  .callout-title { font-weight: 700; margin-bottom: 3px; font-size: 13px; }
+  .callout-text { line-height: 1.5; }
+
+  .callout-info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+  .callout-warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+  .callout-success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+  .callout-danger { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--gray-200);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+
+  .footer-left { font-size: 12px; color: var(--gray-400); }
+  .footer-right { font-size: 12px; color: var(--gray-400); }
+
+  .divider { height: 1px; background: var(--gray-200); margin: 32px 0; }
+
+  /* ── TIMELINE ── */
+  .timeline { padding-left: 8px; }
+
+  .tl-item {
+    display: flex; gap: 16px;
+    padding-bottom: 20px;
+    position: relative;
+  }
+
+  .tl-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 11px; top: 28px;
+    width: 2px;
+    bottom: 0;
+    background: var(--gray-200);
+  }
+
+  .tl-dot {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--primary);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    z-index: 1;
+  }
+
+  .tl-content { flex: 1; }
+  .tl-title { font-size: 13px; font-weight: 700; color: var(--gray-900); margin-bottom: 3px; }
+  .tl-desc { font-size: 12px; color: var(--gray-500); }
+
+  /* ── DB TABLE ── */
+  .db-schema {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .db-table {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .db-table-header {
+    background: var(--secondary);
+    color: #fff;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .db-table-icon { font-size: 14px; }
+
+  .db-field {
+    display: flex;
+    padding: 7px 14px;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 12px;
+  }
+
+  .db-field:last-child { border-bottom: none; }
+
+  .db-field-name { font-family: monospace; color: var(--gray-900); flex: 1; font-weight: 600; }
+  .db-field-type { color: var(--accent); font-family: monospace; width: 90px; flex-shrink: 0; font-size: 11px; }
+  .db-field-note { color: var(--gray-400); font-size: 11px; text-align: right; flex-shrink: 0; }
+
+  .db-pk { color: var(--warning); }
+
+  /* ── SECURITY ── */
+  .security-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  .security-item {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .security-icon { font-size: 28px; margin-bottom: 10px; }
+
+  .security-title { font-size: 13px; font-weight: 700; color: var(--gray-900); margin-bottom: 6px; }
+  .security-desc { font-size: 12px; color: var(--gray-500); line-height: 1.5; }
+
+  /* ── SUPER ADMIN ── */
+  .sa-perm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+
+  .sa-perm-card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 18px;
+    border-top: 3px solid var(--primary);
+  }
+
+  .sa-perm-card.danger-border { border-top-color: var(--danger); }
+  .sa-perm-card.warn-border { border-top-color: var(--warning); }
+  .sa-perm-card.success-border { border-top-color: var(--success); }
+  .sa-perm-card.purple-border { border-top-color: #8b5cf6; }
+  .sa-perm-card.cyan-border { border-top-color: var(--accent); }
+
+  .sa-perm-title { font-size: 13px; font-weight: 700; color: var(--gray-900); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+
+  /* ── TECH WHY ── */
+  .tech-why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .tech-why-card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tech-why-card::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    background: radial-gradient(circle at top right, rgba(37,99,235,.06), transparent);
+    border-radius: 0 12px 0 0;
+  }
+
+  .tech-why-name {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .tech-badge-big {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 800;
+    font-family: monospace;
+  }
+
+  .tech-why-pros { margin-top: 10px; }
+
+  .tech-pro-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 12px;
+    color: var(--gray-700);
+    padding: 4px 0;
+  }
+
+  .tech-pro-icon { color: var(--success); font-size: 11px; margin-top: 3px; flex-shrink: 0; }
+
+  .tech-alt {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--gray-200);
+    font-size: 11px;
+    color: var(--gray-400);
+  }
+
+  .tech-alt strong { color: var(--gray-600); }
+
+  /* ── SPEED METRICS ── */
+  .speed-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+
+  .speed-card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .speed-val {
+    font-size: 26px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .speed-label { font-size: 11px; color: var(--gray-400); font-weight: 500; }
+  .speed-sub { font-size: 10px; color: var(--gray-300); margin-top: 4px; }
+
+  /* ── GANTT ── */
+  .gantt-wrap {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .gantt-header {
+    background: var(--secondary);
+    display: grid;
+    grid-template-columns: 220px repeat(20, 1fr);
+    gap: 0;
+    padding: 0;
+  }
+
+  .gantt-header-task {
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    border-right: 1px solid #1e293b;
+  }
+
+  .gantt-month {
+    grid-column: span 4;
+    padding: 10px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    border-right: 1px solid #1e293b;
+  }
+
+  .gantt-row {
+    display: grid;
+    grid-template-columns: 220px repeat(20, 1fr);
+    border-bottom: 1px solid var(--gray-100);
+    min-height: 38px;
+  }
+
+  .gantt-row:last-child { border-bottom: none; }
+  .gantt-row:hover { background: var(--gray-50); }
+
+  .gantt-task-name {
+    padding: 9px 14px;
+    font-size: 12px;
+    color: var(--gray-700);
+    border-right: 1px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+  }
+
+  .gantt-cell {
+    border-right: 1px solid var(--gray-100);
+    position: relative;
+  }
+
+  .gantt-bar {
+    position: absolute;
+    top: 7px; bottom: 7px;
+    border-radius: 4px;
+    left: 2px; right: 2px;
+  }
+
+  .gantt-section-header .gantt-task-name {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--gray-400);
+    background: var(--gray-50);
+  }
+
+  .gantt-section-header {
+    background: var(--gray-50);
+  }
+
+  /* ── MONTH TIMELINE ── */
+  .month-timeline {
+    display: flex;
+    gap: 0;
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .month-block {
+    flex: 1;
+    border-right: 1px solid var(--gray-200);
+    padding: 18px 16px 20px;
+  }
+
+  .month-block:last-child { border-right: none; }
+
+  .month-num {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray-400);
+    margin-bottom: 4px;
+  }
+
+  .month-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--gray-900);
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+
+  .month-block.active-month .month-name { color: var(--primary); border-bottom-color: var(--primary); }
+
+  .month-task {
+    font-size: 11px;
+    color: var(--gray-600);
+    padding: 4px 0 4px 14px;
+    position: relative;
+    line-height: 1.4;
+  }
+
+  .month-task::before {
+    content: '';
+    position: absolute;
+    left: 4px; top: 9px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--primary);
+  }
+
+  .month-block.m2 .month-task::before { background: var(--accent); }
+  .month-block.m3 .month-task::before { background: var(--warning); }
+  .month-block.m4 .month-task::before { background: var(--success); }
+  .month-block.m5 .month-task::before { background: #8b5cf6; }
+
+  .month-deliverable {
+    margin-top: 10px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+
+  /* responsive */
+  @media (max-width: 900px) {
+    :root { --sidebar-w: 0px; }
+    #sidebar { display: none; }
+    #main { margin-left: 0; }
+    #content { padding: 24px; }
+    .cover-meta-grid { grid-template-columns: 1fr 1fr; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .db-schema { grid-template-columns: 1fr; }
+    .security-grid { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    #sidebar { display: none; }
+    #main { margin-left: 0; }
+    #top-header { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ SIDEBAR ══════════════════════════════════════ -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <a href="#cover" class="logo-mark">
+      <div class="logo-icon">F</div>
+      <div>
+        <div class="logo-text">FixFlow</div>
+        <div class="logo-sub">Техническое задание</div>
+      </div>
+    </a>
+  </div>
+  <div class="sidebar-meta">
+    <div class="meta-badge">Версия <span>1.0.0</span></div>
+    <div class="meta-badge">Апрель <span>2025</span></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Обзор</div>
+    <a href="#cover" class="nav-item active"><span class="nav-num">✦</span> Титульная страница</a>
+    <a href="#overview" class="nav-item"><span class="nav-num">1</span> Обзор системы</a>
+    <a href="#roles" class="nav-item"><span class="nav-num">2</span> Роли и доступы</a>
+    <a href="#superadmin" class="nav-item"><span class="nav-num">3</span> Супер Администратор</a>
+
+    <div class="nav-section-label">Функционал</div>
+    <a href="#requests" class="nav-item"><span class="nav-num">4</span> Создание заявок</a>
+    <a href="#statuses" class="nav-item"><span class="nav-num">5</span> Статусы и логика</a>
+    <a href="#notifications" class="nav-item"><span class="nav-num">6</span> Уведомления</a>
+    <a href="#analytics" class="nav-item"><span class="nav-num">7</span> Аналитика</a>
+    <a href="#sla" class="nav-item"><span class="nav-num">8</span> SLA и мониторинг</a>
+
+    <div class="nav-section-label">Техника</div>
+    <a href="#interfaces" class="nav-item"><span class="nav-num">9</span> Интерфейсы</a>
+    <a href="#adminpanel" class="nav-item"><span class="nav-num">10</span> Скорость Админки</a>
+    <a href="#architecture" class="nav-item"><span class="nav-num">11</span> Архитектура</a>
+    <a href="#techwhy" class="nav-item"><span class="nav-num">12</span> Почему эти технологии</a>
+    <a href="#database" class="nav-item"><span class="nav-num">13</span> База данных</a>
+    <a href="#api" class="nav-item"><span class="nav-num">14</span> API спецификация</a>
+    <a href="#security" class="nav-item"><span class="nav-num">15</span> Безопасность</a>
+    <a href="#audit" class="nav-item"><span class="nav-num">16</span> Аудит и логи</a>
+    <a href="#roadmap" class="nav-item"><span class="nav-num">17</span> Сроки (5 месяцев)</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════ MAIN ══════════════════════════════════════ -->
+<div id="main">
+
+  <!-- TOP HEADER -->
+  <div id="top-header">
+    <div class="header-left">
+      <h1>FixFlow — Техническое Задание</h1>
+      <p>Система управления заявками на ремонт и обслуживание</p>
+    </div>
+    <div class="header-badges">
+      <span class="hbadge hbadge-blue">v1.0.0</span>
+      <span class="hbadge hbadge-green">Enterprise SaaS</span>
+      <span class="hbadge hbadge-gray">Апрель 2025</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- ── COVER ── -->
+    <section id="cover" class="section">
+      <div class="cover">
+        <div class="cover-eyebrow">&#128196; Официальный документ &nbsp;·&nbsp; ТЗ v1.0</div>
+        <h1><span>FixFlow</span><br/>Service Desk Platform</h1>
+        <p class="cover-subtitle">
+          Корпоративная система управления заявками на ремонт и техническое обслуживание.
+          Полный цикл: от создания до закрытия, с аналитикой, SLA-контролем и Telegram-интеграцией.
+        </p>
+        <div class="cover-meta-grid">
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">Тип системы</div>
+            <div class="cover-meta-value">Enterprise SaaS</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">Версия документа</div>
+            <div class="cover-meta-value">1.0.0 — Финальная</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">Дата составления</div>
+            <div class="cover-meta-value">Апрель 2025</div>
+          </div>
+          <div class="cover-meta-item">
+            <div class="cover-meta-label">Стек технологий</div>
+            <div class="cover-meta-value">NestJS · React · PG</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 1. OVERVIEW ── -->
+    <section id="overview" class="section">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <div>
+          <h2>Обзор системы</h2>
+          <p>Назначение, цели, охват и ключевые характеристики продукта</p>
+        </div>
+      </div>
+
+      <p>
+        <strong>FixFlow</strong> — это веб-ориентированная платформа класса Service Desk,
+        разработанная для автоматизации процессов управления заявками на ремонт оборудования,
+        технического обслуживания помещений, ИТ-поддержки и других видов сервисных запросов
+        внутри крупных организаций с разветвлённой филиальной структурой.
+      </p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-blue">&#127775;</div> Цель проекта</div>
+          <ul class="feature-list">
+            <li>Сокращение времени реакции на инциденты</li>
+            <li>Централизованный учёт всех сервисных запросов</li>
+            <li>Повышение прозрачности выполнения работ</li>
+            <li>Контроль SLA и KPI исполнителей</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-green">&#127919;</div> Целевая аудитория</div>
+          <ul class="feature-list">
+            <li>Торговые сети и ритейлеры</li>
+            <li>Банки и финансовые учреждения</li>
+            <li>Производственные предприятия</li>
+            <li>Управляющие компании (недвижимость)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-orange">&#9889;</div> Ключевые ценности</div>
+          <ul class="feature-list">
+            <li>Мобильный доступ через Telegram Mini App</li>
+            <li>Real-time уведомления (WebSocket)</li>
+            <li>Dashboard-аналитика в стиле BI-систем</li>
+            <li>Полный audit log всех действий</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Границы системы</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Функциональная область</th>
+              <th>В рамках системы</th>
+              <th>Вне рамок системы</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Управление заявками</td>
+              <td><span class="badge badge-green">&#10003; Входит</span></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>Бухгалтерский учёт расходов</td>
+              <td>—</td>
+              <td><span class="badge badge-red">&#10007; Не входит</span></td>
+            </tr>
+            <tr>
+              <td>Аналитика и KPI</td>
+              <td><span class="badge badge-green">&#10003; Входит</span></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>HR-система управления персоналом</td>
+              <td>—</td>
+              <td><span class="badge badge-red">&#10007; Не входит</span></td>
+            </tr>
+            <tr>
+              <td>Telegram-бот уведомлений</td>
+              <td><span class="badge badge-green">&#10003; Входит</span></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>ERP-интеграция (SAP, 1С)</td>
+              <td><span class="badge badge-yellow">Фаза 2</span></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>SLA-контроль</td>
+              <td><span class="badge badge-green">&#10003; Входит</span></td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>Управление складом запчастей</td>
+              <td>—</td>
+              <td><span class="badge badge-red">&#10007; Не входит</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── 2. ROLES ── -->
+    <section id="roles" class="section">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <div>
+          <h2>Роли и права доступа</h2>
+          <p>Описание акторов системы и их функциональных полномочий</p>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="role-card customer">
+          <div class="role-title">&#128100; Заказчик</div>
+          <div class="role-sub">Customer / Initiator</div>
+          <ul class="feature-list">
+            <li>Создание новых заявок</li>
+            <li>Просмотр своих заявок</li>
+            <li>Отслеживание статуса</li>
+            <li>Добавление комментариев</li>
+            <li>Загрузка фото и файлов</li>
+            <li>Оценка выполненной работы</li>
+          </ul>
+        </div>
+        <div class="role-card manager">
+          <div class="role-title">&#128203; Менеджер</div>
+          <div class="role-sub">Manager / Dispatcher</div>
+          <ul class="feature-list">
+            <li>Просмотр всех заявок</li>
+            <li>Фильтрация и поиск</li>
+            <li>Одобрение / отклонение заявок</li>
+            <li>Назначение исполнителей</li>
+            <li>Изменение приоритета и сроков</li>
+            <li>Просмотр аналитики и отчётов</li>
+            <li>Управление категориями и группами</li>
+          </ul>
+        </div>
+        <div class="role-card executor">
+          <div class="role-title">&#128296; Исполнитель</div>
+          <div class="role-sub">Executor / Technician</div>
+          <ul class="feature-list">
+            <li>Просмотр назначенных заявок</li>
+            <li>Взятие заявки в работу</li>
+            <li>Добавление комментариев и фото</li>
+            <li>Перевод статуса: DONE / REJECTED</li>
+            <li>Работа через Telegram Mini App</li>
+            <li>Просмотр своей истории работ</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Матрица прав доступа</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Действие</th>
+              <th>Заказчик</th>
+              <th>Менеджер</th>
+              <th>Исполнитель</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Создание заявки</td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-red">&#10007;</span></td></tr>
+            <tr><td>Просмотр своих заявок</td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td></tr>
+            <tr><td>Просмотр всех заявок</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-red">&#10007;</span></td></tr>
+            <tr><td>Одобрение / отклонение</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-red">&#10007;</span></td></tr>
+            <tr><td>Назначение исполнителя</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-red">&#10007;</span></td></tr>
+            <tr><td>Перевод в IN_PROGRESS</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td></tr>
+            <tr><td>Закрытие заявки (DONE)</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td></tr>
+            <tr><td>Просмотр аналитики</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-yellow">Свои</span></td></tr>
+            <tr><td>Управление справочниками</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-red">&#10007;</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── SUPER ADMIN ── -->
+    <section id="superadmin" class="section">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <div>
+          <h2>Супер Администратор</h2>
+          <p>Полный контроль над системой: пользователи, организации, конфигурации, безопасность</p>
+        </div>
+      </div>
+
+      <div class="callout callout-danger">
+        <div class="callout-icon">&#128737;</div>
+        <div class="callout-body">
+          <div class="callout-title">Роль SUPER_ADMIN — максимальный уровень привилегий</div>
+          <div class="callout-text">Супер Администратор — это системная роль, недоступная через обычную регистрацию. Назначается вручную на уровне БД. Имеет доступ ко всем организациям, настройкам системы, логам безопасности и инфраструктурным конфигурациям. Действия SUPER_ADMIN логируются с повышенным приоритетом в audit log.</div>
+        </div>
+      </div>
+
+      <div class="sa-perm-grid">
+        <div class="sa-perm-card">
+          <div class="sa-perm-title">&#127968; Управление организациями</div>
+          <ul class="feature-list">
+            <li>Создание новых тенантов (организаций)</li>
+            <li>Настройка лимитов: пользователи, заявки, хранилище</li>
+            <li>Блокировка / разблокировка организации</li>
+            <li>Просмотр статистики по каждому тенанту</li>
+            <li>Настройка тарифного плана</li>
+          </ul>
+        </div>
+        <div class="sa-perm-card warn-border">
+          <div class="sa-perm-title">&#128100; Управление пользователями</div>
+          <ul class="feature-list">
+            <li>Просмотр всех пользователей системы</li>
+            <li>Создание / удаление / блокировка аккаунтов</li>
+            <li>Принудительный сброс пароля</li>
+            <li>Изменение роли любого пользователя</li>
+            <li>Просмотр сессий и активных устройств</li>
+            <li>Инвалидация всех токенов пользователя</li>
+          </ul>
+        </div>
+        <div class="sa-perm-card danger-border">
+          <div class="sa-perm-title">&#128202; Глобальная аналитика</div>
+          <ul class="feature-list">
+            <li>Дашборд по всем организациям сразу</li>
+            <li>Сравнение KPI между тенантами</li>
+            <li>Топ-активных объектов и исполнителей</li>
+            <li>Отчёты по нагрузке на систему</li>
+            <li>Метрики использования: API calls, storage, WS</li>
+          </ul>
+        </div>
+        <div class="sa-perm-card success-border">
+          <div class="sa-perm-title">&#9881; Системные настройки</div>
+          <ul class="feature-list">
+            <li>Настройка глобальных SLA-конфигураций</li>
+            <li>Управление справочниками (группы, категории) глобально</li>
+            <li>Настройка Telegram Bot (webhook, токен)</li>
+            <li>Управление S3/MinIO хранилищем</li>
+            <li>Конфигурация уведомлений (шаблоны, каналы)</li>
+          </ul>
+        </div>
+        <div class="sa-perm-card purple-border">
+          <div class="sa-perm-title">&#128196; Аудит и безопасность</div>
+          <ul class="feature-list">
+            <li>Полный audit log всей системы</li>
+            <li>Фильтрация по пользователю, IP, действию, дате</li>
+            <li>Экспорт логов за любой период</li>
+            <li>Просмотр всех активных JWT-сессий</li>
+            <li>Принудительный logout всех пользователей</li>
+            <li>Просмотр попыток взлома / brute-force</li>
+          </ul>
+        </div>
+        <div class="sa-perm-card cyan-border">
+          <div class="sa-perm-title">&#128640; Инфраструктура</div>
+          <ul class="feature-list">
+            <li>Просмотр состояния очередей BullMQ</li>
+            <li>Управление failed/stalled jobs</li>
+            <li>Мониторинг Redis (память, ключи, TTL)</li>
+            <li>Просмотр ошибок из Sentry прямо в UI</li>
+            <li>Принудительный запуск cron-задач</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Экраны Super Admin панели</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Экран</th><th>URL</th><th>Что показывает</th><th>Действия</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Главный дашборд</strong></td>
+              <td><code>/admin</code></td>
+              <td>Кол-во орг-ций, пользователей, заявок, активных сессий, нагрузка CPU/RAM</td>
+              <td>Только просмотр</td>
+            </tr>
+            <tr>
+              <td><strong>Организации</strong></td>
+              <td><code>/admin/tenants</code></td>
+              <td>Список всех тенантов, статус, лимиты, план</td>
+              <td>Создать, заблокировать, настроить лимиты</td>
+            </tr>
+            <tr>
+              <td><strong>Все пользователи</strong></td>
+              <td><code>/admin/users</code></td>
+              <td>Поиск по email, роли, организации, последняя активность</td>
+              <td>Создать, заблокировать, сменить роль, сбросить пароль</td>
+            </tr>
+            <tr>
+              <td><strong>Глобальная аналитика</strong></td>
+              <td><code>/admin/analytics</code></td>
+              <td>Сводные KPI по всем тенантам, графики роста, SLA рейтинг</td>
+              <td>Фильтры по периоду, тенанту, категории</td>
+            </tr>
+            <tr>
+              <td><strong>Аудит лог</strong></td>
+              <td><code>/admin/audit</code></td>
+              <td>Хронологический лог всех действий в системе с фильтрами</td>
+              <td>Поиск, фильтрация, экспорт CSV/Excel</td>
+            </tr>
+            <tr>
+              <td><strong>Безопасность</strong></td>
+              <td><code>/admin/security</code></td>
+              <td>Активные сессии, подозрительные IP, failed login attempts</td>
+              <td>Завершить сессию, заблокировать IP</td>
+            </tr>
+            <tr>
+              <td><strong>Очереди / Jobs</strong></td>
+              <td><code>/admin/queues</code></td>
+              <td>BullMQ queue dashboard: pending, active, failed, completed</td>
+              <td>Retry failed jobs, очистить очередь</td>
+            </tr>
+            <tr>
+              <td><strong>Конфигурация</strong></td>
+              <td><code>/admin/config</code></td>
+              <td>Глобальные настройки: SLA, шаблоны уведомлений, Telegram</td>
+              <td>Редактировать конфигурацию в реальном времени</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Матрица привилегий: SUPER_ADMIN vs другие роли</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Возможность</th><th>Заказчик</th><th>Менеджер</th><th>Исполнитель</th><th>SUPER_ADMIN</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Доступ к своей организации</td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003; Все орг-ции</span></td></tr>
+            <tr><td>Управление пользователями</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-yellow">Своя орг.</span></td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003; Все системы</span></td></tr>
+            <tr><td>Настройки системы</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003; Полный доступ</span></td></tr>
+            <tr><td>Глобальная аналитика</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-yellow">Только своя</span></td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003; Все тенанты</span></td></tr>
+            <tr><td>Просмотр audit log</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-yellow">Свои действия</span></td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003; Вся система</span></td></tr>
+            <tr><td>Управление очередями</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003;</span></td></tr>
+            <tr><td>Блокировка IP / сессий</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003;</span></td></tr>
+            <tr><td>Удаление данных (hard delete)</td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-red">&#10007;</span></td><td><span class="badge badge-green">&#10003; С подтверждением</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── 4. REQUESTS ── -->
+    <section id="requests" class="section">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <div>
+          <h2>Создание и структура заявки</h2>
+          <p>Поля, валидация и бизнес-правила при создании заявки</p>
+        </div>
+      </div>
+
+      <h3>Поля заявки</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Поле</th>
+              <th>Тип</th>
+              <th>Обязательность</th>
+              <th>Описание</th>
+              <th>Валидация</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>object_id</code></td>
+              <td>UUID / FK</td>
+              <td><span class="badge badge-red">Обязательно</span></td>
+              <td>Объект (ПБО / Филиал)</td>
+              <td>Из справочника объектов</td>
+            </tr>
+            <tr>
+              <td><code>group_id</code></td>
+              <td>UUID / FK</td>
+              <td><span class="badge badge-red">Обязательно</span></td>
+              <td>Группа работ (ремонт, электрика, IT…)</td>
+              <td>Из справочника групп</td>
+            </tr>
+            <tr>
+              <td><code>category_id</code></td>
+              <td>UUID / FK</td>
+              <td><span class="badge badge-red">Обязательно</span></td>
+              <td>Категория (подкатегория группы)</td>
+              <td>Зависит от group_id</td>
+            </tr>
+            <tr>
+              <td><code>title</code></td>
+              <td>VARCHAR(200)</td>
+              <td><span class="badge badge-red">Обязательно</span></td>
+              <td>Краткое название заявки</td>
+              <td>3–200 символов</td>
+            </tr>
+            <tr>
+              <td><code>description</code></td>
+              <td>TEXT</td>
+              <td><span class="badge badge-red">Обязательно</span></td>
+              <td>Подробное описание проблемы</td>
+              <td>Мин. 10 символов</td>
+            </tr>
+            <tr>
+              <td><code>priority</code></td>
+              <td>ENUM</td>
+              <td><span class="badge badge-red">Обязательно</span></td>
+              <td>LOW / MEDIUM / HIGH / CRITICAL</td>
+              <td>Одно из 4 значений</td>
+            </tr>
+            <tr>
+              <td><code>photos</code></td>
+              <td>ARRAY&lt;URL&gt;</td>
+              <td><span class="badge badge-gray">Опционально</span></td>
+              <td>Фотографии проблемы (до 5 шт.)</td>
+              <td>JPG/PNG, макс. 5 МБ</td>
+            </tr>
+            <tr>
+              <td><code>location</code></td>
+              <td>POINT (lat/lng)</td>
+              <td><span class="badge badge-gray">Опционально</span></td>
+              <td>Геолокация из браузера / Telegram</td>
+              <td>WGS-84 координаты</td>
+            </tr>
+            <tr>
+              <td><code>deadline</code></td>
+              <td>TIMESTAMP</td>
+              <td><span class="badge badge-gray">Опционально</span></td>
+              <td>Желаемый срок выполнения</td>
+              <td>Не раньше текущей даты</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Справочники (группы и категории)</h3>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">&#128296; Группы заявок</div>
+          <ul class="feature-list">
+            <li>Ремонт оборудования</li>
+            <li>Сантехника</li>
+            <li>Электрика</li>
+            <li>IT / Компьютеры</li>
+            <li>Вентиляция и кондиционирование</li>
+            <li>Охранные системы</li>
+            <li>Уборка и клининг</li>
+            <li>Прочее</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">&#127919; Приоритеты</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="badge badge-gray">LOW</span>
+              <span style="font-size:12px;color:var(--gray-500);">Плановые работы, не срочно (SLA: 5 дней)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="badge badge-blue">MEDIUM</span>
+              <span style="font-size:12px;color:var(--gray-500);">Стандартные заявки (SLA: 2 дня)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="badge badge-orange">HIGH</span>
+              <span style="font-size:12px;color:var(--gray-500);">Влияет на работу подразделения (SLA: 4 часа)</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="badge badge-red">CRITICAL</span>
+              <span style="font-size:12px;color:var(--gray-500);">Полный останов / угроза безопасности (SLA: 1 час)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 4. STATUSES ── -->
+    <section id="statuses" class="section">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <div>
+          <h2>Статусы и логика обработки</h2>
+          <p>Жизненный цикл заявки и разрешённые переходы статусов</p>
+        </div>
+      </div>
+
+      <h3>Поток статусов</h3>
+      <div class="status-flow">
+        <div class="status-node">
+          <div class="status-circle" style="background:#eff6ff;color:#2563eb;border:2px solid #bfdbfe;">N</div>
+          <div class="status-label">NEW</div>
+          <div class="status-sub">Создана</div>
+        </div>
+        <div class="status-arrow"></div>
+        <div class="status-node">
+          <div class="status-circle" style="background:#fffbeb;color:#d97706;border:2px solid #fde68a;">A</div>
+          <div class="status-label">APPROVED</div>
+          <div class="status-sub">Одобрена</div>
+        </div>
+        <div class="status-arrow"></div>
+        <div class="status-node">
+          <div class="status-circle" style="background:#ecfeff;color:#0891b2;border:2px solid #a5f3fc;">P</div>
+          <div class="status-label">IN_PROGRESS</div>
+          <div class="status-sub">В работе</div>
+        </div>
+        <div class="status-arrow"></div>
+        <div class="status-node">
+          <div class="status-circle" style="background:#ecfdf5;color:#059669;border:2px solid #a7f3d0;">D</div>
+          <div class="status-label">DONE</div>
+          <div class="status-sub">Выполнена</div>
+        </div>
+      </div>
+
+      <div class="callout callout-warning">
+        <div class="callout-icon">&#9888;</div>
+        <div class="callout-body">
+          <div class="callout-title">Статус REJECTED</div>
+          <div class="callout-text">Заявка может быть отклонена из статусов NEW или APPROVED менеджером с обязательным указанием причины отклонения. Заказчик получает уведомление с комментарием.</div>
+        </div>
+      </div>
+
+      <h3>Таблица переходов статусов</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Из статуса</th>
+              <th>В статус</th>
+              <th>Кто может</th>
+              <th>Условия</th>
+              <th>Триггер уведомления</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-blue">NEW</span></td>
+              <td><span class="badge badge-yellow">APPROVED</span></td>
+              <td>Менеджер</td>
+              <td>Заявка корректно заполнена</td>
+              <td>Заказчик + Исполнители группы</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-blue">NEW</span></td>
+              <td><span class="badge badge-red">REJECTED</span></td>
+              <td>Менеджер</td>
+              <td>Указана причина отклонения</td>
+              <td>Заказчик</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-yellow">APPROVED</span></td>
+              <td><span class="badge badge-cyan">IN_PROGRESS</span></td>
+              <td>Менеджер / Исполнитель</td>
+              <td>Назначен исполнитель</td>
+              <td>Заказчик + Исполнитель</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-yellow">APPROVED</span></td>
+              <td><span class="badge badge-red">REJECTED</span></td>
+              <td>Менеджер</td>
+              <td>Указана причина</td>
+              <td>Заказчик</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-cyan">IN_PROGRESS</span></td>
+              <td><span class="badge badge-green">DONE</span></td>
+              <td>Исполнитель / Менеджер</td>
+              <td>Работа завершена, можно приложить фото</td>
+              <td>Заказчик + Менеджер</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── 5. NOTIFICATIONS ── -->
+    <section id="notifications" class="section">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <div>
+          <h2>Система уведомлений</h2>
+          <p>Real-time WebSocket и Telegram-бот интеграция</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-blue">&#128172;</div> WebSocket (Real-time)</div>
+          <ul class="feature-list">
+            <li>Подключение при открытии веб-приложения</li>
+            <li>Мгновенные уведомления без перезагрузки</li>
+            <li>Toast-уведомления в UI</li>
+            <li>Обновление счётчиков и статусов в реальном времени</li>
+            <li>Комнаты (rooms) по ролям: managers, executors</li>
+            <li>Библиотека: Socket.IO / NestJS Gateway</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-cyan">&#9992;</div> Telegram Bot</div>
+          <ul class="feature-list">
+            <li>Push-уведомления в Telegram-чат пользователя</li>
+            <li>Действия прямо из чата: /take, /done, /reject</li>
+            <li>Форматированные сообщения с деталями заявки</li>
+            <li>Deep link → переход в Mini App</li>
+            <li>Webhook-архитектура (не polling)</li>
+            <li>Использует telegramId из профиля пользователя</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Таблица событий уведомлений</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Событие</th><th>WebSocket</th><th>Telegram</th><th>Получатели</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Создание заявки (NEW)</td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td><td>Все менеджеры</td></tr>
+            <tr><td>Заявка одобрена (APPROVED)</td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td><td>Заказчик</td></tr>
+            <tr><td>Заявка отклонена (REJECTED)</td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td><td>Заказчик</td></tr>
+            <tr><td>Назначен исполнитель</td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td><td>Исполнитель + Заказчик</td></tr>
+            <tr><td>Заявка взята в работу</td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td><td>Заказчик + Менеджер</td></tr>
+            <tr><td>Заявка выполнена (DONE)</td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td><td>Заказчик + Менеджер</td></tr>
+            <tr><td>SLA нарушен</td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-green">&#10003;</span></td><td>Менеджер</td></tr>
+            <tr><td>Новый комментарий</td><td><span class="badge badge-green">&#10003;</span></td><td><span class="badge badge-gray">Опц.</span></td><td>Участники заявки</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── 6. ANALYTICS ── -->
+    <section id="analytics" class="section">
+      <div class="section-header">
+        <div class="section-num">6</div>
+        <div>
+          <h2>Аналитика и Dashboard</h2>
+          <p>Метрики, KPI и визуализации в стиле BI-системы</p>
+        </div>
+      </div>
+
+      <h3>KPI — ключевые метрики</h3>
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-value" style="color:#2563eb;">1 284</div>
+          <div class="kpi-label">Всего заявок (месяц)</div>
+          <div class="kpi-trend trend-up">&#8593; +12% vs прошлый месяц</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value" style="color:#10b981;">94.7%</div>
+          <div class="kpi-label">SLA выполнено в срок</div>
+          <div class="kpi-trend trend-up">&#8593; +2.3% vs прошлый месяц</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value" style="color:#f59e0b;">4.2ч</div>
+          <div class="kpi-label">Среднее время реакции</div>
+          <div class="kpi-trend trend-down">&#8595; -0.8ч улучшение</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value" style="color:#8b5cf6;">47</div>
+          <div class="kpi-label">Открытых заявок сейчас</div>
+          <div class="kpi-trend trend-up">&#8593; +5 за сегодня</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="chart-mock">
+          <div class="chart-title">Заявки по категориям (текущий месяц)</div>
+          <div class="pie-mock">
+            <div class="pie-circle"></div>
+            <div class="pie-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#2563eb;"></div>IT / Компьютеры — 35%</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div>Ремонт оборудования — 25%</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div>Электрика — 18%</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#ef4444;"></div>Сантехника — 10%</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6;"></div>Прочее — 12%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-mock">
+          <div class="chart-title">Динамика заявок по неделям</div>
+          <div class="bar-chart">
+            <div class="bar-item"><div class="bar" style="height:55px;background:#bfdbfe;"></div><div class="bar-label">Нед.1</div></div>
+            <div class="bar-item"><div class="bar" style="height:70px;background:#93c5fd;"></div><div class="bar-label">Нед.2</div></div>
+            <div class="bar-item"><div class="bar" style="height:45px;background:#bfdbfe;"></div><div class="bar-label">Нед.3</div></div>
+            <div class="bar-item"><div class="bar" style="height:90px;background:#2563eb;"></div><div class="bar-label">Нед.4</div></div>
+            <div class="bar-item"><div class="bar" style="height:60px;background:#93c5fd;"></div><div class="bar-label">Нед.5</div></div>
+            <div class="bar-item"><div class="bar" style="height:80px;background:#60a5fa;"></div><div class="bar-label">Нед.6</div></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Доступные отчёты</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Отчёт</th><th>Измерения</th><th>Фильтры</th><th>Экспорт</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Сводный отчёт по заявкам</strong></td>
+              <td>По датам, статусам, категориям</td>
+              <td>Дата, филиал, группа, статус</td>
+              <td><span class="badge badge-blue">Excel</span> <span class="badge badge-gray">PDF</span></td>
+            </tr>
+            <tr>
+              <td><strong>Отчёт по исполнителям</strong></td>
+              <td>Закрытых, среднее время, оценка</td>
+              <td>Период, исполнитель, категория</td>
+              <td><span class="badge badge-blue">Excel</span></td>
+            </tr>
+            <tr>
+              <td><strong>Отчёт по филиалам</strong></td>
+              <td>Количество заявок, SLA, типы</td>
+              <td>Период, регион, тип объекта</td>
+              <td><span class="badge badge-blue">Excel</span> <span class="badge badge-gray">PDF</span></td>
+            </tr>
+            <tr>
+              <td><strong>SLA-нарушения</strong></td>
+              <td>Просроченные, причины, исполнители</td>
+              <td>Дата, приоритет, категория</td>
+              <td><span class="badge badge-blue">Excel</span></td>
+            </tr>
+            <tr>
+              <td><strong>Heatmap активности</strong></td>
+              <td>Активность по часам и дням недели</td>
+              <td>Период, объект</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── 7. SLA ── -->
+    <section id="sla" class="section">
+      <div class="section-header">
+        <div class="section-num">7</div>
+        <div>
+          <h2>SLA-контроль и мониторинг</h2>
+          <p>Уровни сервиса, эскалации и автоматические триггеры</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">&#8505;</div>
+        <div class="callout-body">
+          <div class="callout-title">Что такое SLA в FixFlow</div>
+          <div class="callout-text">SLA (Service Level Agreement) — это максимально допустимое время от создания заявки до её закрытия, определяемое приоритетом заявки. Система автоматически отслеживает дедлайны через BullMQ-очередь и отправляет эскалационные уведомления.</div>
+        </div>
+      </div>
+
+      <h3>Таблица SLA по приоритетам</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Приоритет</th><th>Время реакции (APPROVED)</th><th>Время выполнения</th><th>Эскалация 1</th><th>Эскалация 2</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-red">CRITICAL</span></td>
+              <td>15 минут</td>
+              <td>1 час</td>
+              <td>30 мин → уведомление менеджеру</td>
+              <td>1 ч → уведомление руководителю</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-orange">HIGH</span></td>
+              <td>1 час</td>
+              <td>4 часа</td>
+              <td>2 ч → напоминание</td>
+              <td>4 ч → эскалация менеджеру</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-blue">MEDIUM</span></td>
+              <td>4 часа</td>
+              <td>2 рабочих дня</td>
+              <td>1 день → напоминание</td>
+              <td>2 дня → эскалация</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-gray">LOW</span></td>
+              <td>1 рабочий день</td>
+              <td>5 рабочих дней</td>
+              <td>3 дня → напоминание</td>
+              <td>5 дней → эскалация</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Техническая реализация SLA</h3>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-orange">&#9200;</div> BullMQ Job Queue</div>
+          <ul class="feature-list">
+            <li>При создании заявки создаётся delayed job в Redis</li>
+            <li>Триггер эскалации 1: задержка = SLA/2</li>
+            <li>Триггер эскалации 2: задержка = SLA</li>
+            <li>При закрытии заявки jobs удаляются</li>
+            <li>Cron-задача: ежечасная проверка просроченных</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-purple">&#128202;</div> SLA Метрики</div>
+          <ul class="feature-list">
+            <li><code>sla_deadline</code> — рассчитывается при создании</li>
+            <li><code>sla_status</code>: ON_TIME / AT_RISK / BREACHED</li>
+            <li>AT_RISK: осталось менее 20% от SLA-времени</li>
+            <li>Цветовая индикация в таблице заявок</li>
+            <li>SLA-метрики в analytics dashboard</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 8. INTERFACES ── -->
+    <section id="interfaces" class="section">
+      <div class="section-header">
+        <div class="section-num">8</div>
+        <div>
+          <h2>Пользовательские интерфейсы</h2>
+          <p>Web-приложение и Telegram Mini App</p>
+        </div>
+      </div>
+
+      <h3>Web-приложение (React + Ant Design)</h3>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-blue">&#128202;</div> Dashboard</div>
+          <ul class="feature-list">
+            <li>Виджеты KPI: заявки, SLA, время ответа</li>
+            <li>Графики: Bar, Pie, Line (recharts / Ant Charts)</li>
+            <li>Heatmap активности по времени</li>
+            <li>Таблица последних заявок</li>
+            <li>Фильтр по периоду (7d / 30d / 90d)</li>
+            <li>Real-time обновление через WebSocket</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-green">&#128203;</div> Таблица заявок</div>
+          <ul class="feature-list">
+            <li>Пагинация (server-side), сортировка по всем полям</li>
+            <li>Фильтры: статус, приоритет, дата, исполнитель, объект</li>
+            <li>Быстрый просмотр (drawer/modal) с деталями</li>
+            <li>Inline-изменение статуса и назначение</li>
+            <li>Массовые действия (batch assign)</li>
+            <li>Экспорт в Excel/CSV</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-orange">&#128221;</div> Форма создания заявки</div>
+          <ul class="feature-list">
+            <li>Многошаговая форма (Wizard, 3 шага)</li>
+            <li>Cascading select: группа → категория</li>
+            <li>Drag &amp; drop загрузка фото</li>
+            <li>Предпросмотр изображений перед отправкой</li>
+            <li>Кнопка «Определить геолокацию»</li>
+            <li>Сохранение черновика (localStorage)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-purple">&#128100;</div> Профиль и настройки</div>
+          <ul class="feature-list">
+            <li>Редактирование профиля пользователя</li>
+            <li>Привязка Telegram-аккаунта (deep link)</li>
+            <li>Управление уведомлениями</li>
+            <li>Смена пароля</li>
+            <li>История действий (audit log)</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Telegram Mini App</h3>
+      <div class="callout callout-success">
+        <div class="callout-icon">&#128241;</div>
+        <div class="callout-body">
+          <div class="callout-title">Telegram Mini App (TWA)</div>
+          <div class="callout-text">Отдельный React-SPA, запускаемый внутри Telegram как WebApp. Использует Telegram WebApp SDK для авторизации (initData), UI-компонентов и haptic feedback. Оптимизирован для мобильных устройств.</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">&#128100; Экраны для Заказчика</div>
+          <ul class="feature-list">
+            <li>Главная: мои активные заявки</li>
+            <li>Создание заявки (краткая форма)</li>
+            <li>Детали заявки + статус-трекер</li>
+            <li>История закрытых заявок</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title">&#128296; Экраны для Исполнителя</div>
+          <ul class="feature-list">
+            <li>Главная: список назначенных заявок</li>
+            <li>Детали заявки + возможность взять в работу</li>
+            <li>Закрытие заявки с фото-отчётом</li>
+            <li>Список выполненных работ</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ADMIN PANEL SPEED ── -->
+    <section id="adminpanel" class="section">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <div>
+          <h2>Производительность Admin-панели</h2>
+          <p>Целевые метрики скорости, оптимизации и UX-требования</p>
+        </div>
+      </div>
+
+      <div class="callout callout-success">
+        <div class="callout-icon">&#9889;</div>
+        <div class="callout-body">
+          <div class="callout-title">Цель: Admin-панель должна работать мгновенно</div>
+          <div class="callout-text">Администраторы и менеджеры работают в панели весь рабочий день. Каждые 100ms задержки = потеря производительности. Целевые показатели спроектированы под high-frequency usage: фильтрация, сортировка, переход между разделами — всё должно быть мгновенным.</div>
+        </div>
+      </div>
+
+      <h3>Целевые метрики скорости</h3>
+      <div class="speed-grid">
+        <div class="speed-card">
+          <div class="speed-val">&lt; 1.2с</div>
+          <div class="speed-label">First Contentful Paint (FCP)</div>
+          <div class="speed-sub">Первый контент на экране</div>
+        </div>
+        <div class="speed-card">
+          <div class="speed-val">&lt; 2.5с</div>
+          <div class="speed-label">Largest Contentful Paint (LCP)</div>
+          <div class="speed-sub">Основной контент загружен</div>
+        </div>
+        <div class="speed-card">
+          <div class="speed-val">&lt; 100мс</div>
+          <div class="speed-label">Time to Interactive (TTI)</div>
+          <div class="speed-sub">После первой загрузки</div>
+        </div>
+        <div class="speed-card">
+          <div class="speed-val">&lt; 80мс</div>
+          <div class="speed-label">API Response (P50)</div>
+          <div class="speed-sub">Типичный запрос к API</div>
+        </div>
+        <div class="speed-card">
+          <div class="speed-val">&lt; 250мс</div>
+          <div class="speed-label">API Response (P95)</div>
+          <div class="speed-sub">95-й перцентиль нагрузки</div>
+        </div>
+        <div class="speed-card">
+          <div class="speed-val">&lt; 50мс</div>
+          <div class="speed-label">Переключение страниц</div>
+          <div class="speed-sub">Client-side navigation (SPA)</div>
+        </div>
+      </div>
+
+      <h3>Технические методы достижения скорости</h3>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-blue">&#9889;</div> Frontend оптимизации</div>
+          <ul class="feature-list">
+            <li><strong>Code splitting</strong> — каждый раздел загружается lazy (React.lazy + Suspense)</li>
+            <li><strong>React Query</strong> — кеширование API-ответов на клиенте, stale-while-revalidate стратегия</li>
+            <li><strong>Virtual scroll</strong> (react-virtual) — таблицы с 10 000+ строк без лагов</li>
+            <li><strong>Debounce</strong> на всех фильтрах — 300ms задержка перед API-запросом</li>
+            <li><strong>Оптимистичный UI</strong> — статус заявки меняется мгновенно, подтверждается от сервера</li>
+            <li><strong>Vite bundler</strong> — сборка за &lt; 10с, HMR за &lt; 200мс в dev</li>
+            <li><strong>Gzip / Brotli</strong> сжатие на Nginx — JS бандл &lt; 250 KB (gzip)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-green">&#128190;</div> Backend оптимизации</div>
+          <ul class="feature-list">
+            <li><strong>PostgreSQL индексы</strong> — по status, priority, created_at, executor_id, object_id</li>
+            <li><strong>Redis кеш</strong> — аналитика и справочники кешируются на 5 минут</li>
+            <li><strong>Server-side пагинация</strong> — возвращается максимум 50 записей за запрос</li>
+            <li><strong>Составные индексы</strong> — для частых фильтров (status + priority, date + object)</li>
+            <li><strong>Connection pooling</strong> (pg-pool: min=5, max=20) — без overhead на подключение</li>
+            <li><strong>Partial indexes</strong> — отдельный индекс по активным заявкам (WHERE closed_at IS NULL)</li>
+            <li><strong>Query explain analyze</strong> — все сложные запросы проверяются в Seq Scan → Index Scan</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Benchmarks — ожидаемые показатели под нагрузкой</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Операция</th><th>Без кеша</th><th>С Redis кешом</th><th>Concurrent users</th><th>Метод</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>GET /requests (список, 50 строк)</td><td>85 мс</td><td>12 мс</td><td>200</td><td>PG Index + pagination</td></tr>
+            <tr><td>GET /analytics/summary</td><td>320 мс</td><td>8 мс</td><td>50</td><td>Redis TTL 5 мин</td></tr>
+            <tr><td>POST /requests (создание)</td><td>45 мс</td><td>—</td><td>100</td><td>Async SLA job</td></tr>
+            <tr><td>PATCH /requests/:id/status</td><td>30 мс</td><td>—</td><td>150</td><td>Optimistic lock</td></tr>
+            <tr><td>WebSocket push (broadcast)</td><td>5 мс</td><td>—</td><td>1 000 WS</td><td>Socket.IO rooms</td></tr>
+            <tr><td>GET /analytics/by-category</td><td>180 мс</td><td>7 мс</td><td>50</td><td>Materialized view</td></tr>
+            <tr><td>Экспорт Excel (1 000 строк)</td><td>1.2 с</td><td>—</td><td>10</td><td>Background job</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Мониторинг производительности</h3>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-orange">&#128202;</div> Grafana Dashboard</div>
+          <ul class="feature-list">
+            <li>API latency P50/P95/P99 по каждому endpoint</li>
+            <li>DB query time (slow query log &gt; 100мс)</li>
+            <li>Redis hit rate (цель &gt; 80%)</li>
+            <li>BullMQ: pending/failed jobs в реальном времени</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-purple">&#128737;</div> Sentry Performance</div>
+          <ul class="feature-list">
+            <li>Transaction tracing по каждому API запросу</li>
+            <li>Frontend Web Vitals (FCP, LCP, CLS)</li>
+            <li>Error rate и stack traces</li>
+            <li>Alerting при деградации &gt; 500мс</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-cyan">&#9889;</div> k6 Load Testing</div>
+          <ul class="feature-list">
+            <li>Smoke test: 5 VU, 1 мин</li>
+            <li>Load test: 100 VU, 10 мин</li>
+            <li>Stress test: 500 VU, 5 мин</li>
+            <li>Spike test: внезапный скачок до 1000 VU</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 11. ARCHITECTURE ── -->
+    <section id="architecture" class="section">
+      <div class="section-header">
+        <div class="section-num">9</div>
+        <div>
+          <h2>Техническая архитектура</h2>
+          <p>Стек технологий, компоненты системы и их взаимодействие</p>
+        </div>
+      </div>
+
+      <div class="arch-box">
+        <div class="arch-layer">
+          <div class="arch-layer-label">&#127760; Клиентский уровень (Client Layer)</div>
+          <div class="arch-chips">
+            <span class="arch-chip chip-blue">React 18</span>
+            <span class="arch-chip chip-blue">Ant Design 5</span>
+            <span class="arch-chip chip-blue">Recharts</span>
+            <span class="arch-chip chip-blue">Zustand (state)</span>
+            <span class="arch-chip chip-blue">React Query</span>
+            <span class="arch-chip chip-cyan">Telegram Mini App</span>
+            <span class="arch-chip chip-cyan">TWA SDK</span>
+            <span class="arch-chip chip-gray">Axios</span>
+            <span class="arch-chip chip-gray">Socket.IO Client</span>
+          </div>
+        </div>
+        <div style="text-align:center;color:var(--gray-300);font-size:20px;padding:4px 0;">&#8597;</div>
+        <div class="arch-layer">
+          <div class="arch-layer-label">&#128506; API Gateway / BFF</div>
+          <div class="arch-chips">
+            <span class="arch-chip chip-green">NestJS 10</span>
+            <span class="arch-chip chip-green">REST API</span>
+            <span class="arch-chip chip-green">WebSocket Gateway</span>
+            <span class="arch-chip chip-green">JWT Auth Guard</span>
+            <span class="arch-chip chip-green">RBAC Decorators</span>
+            <span class="arch-chip chip-green">Swagger / OpenAPI</span>
+          </div>
+        </div>
+        <div style="text-align:center;color:var(--gray-300);font-size:20px;padding:4px 0;">&#8597;</div>
+        <div class="arch-layer">
+          <div class="arch-layer-label">&#9881; Сервисный уровень (Business Logic)</div>
+          <div class="arch-chips">
+            <span class="arch-chip chip-green">RequestsModule</span>
+            <span class="arch-chip chip-green">UsersModule</span>
+            <span class="arch-chip chip-green">NotificationsModule</span>
+            <span class="arch-chip chip-green">AnalyticsModule</span>
+            <span class="arch-chip chip-green">SLAModule</span>
+            <span class="arch-chip chip-green">AuditModule</span>
+            <span class="arch-chip chip-orange">BullMQ Workers</span>
+            <span class="arch-chip chip-cyan">Telegram Bot Service</span>
+          </div>
+        </div>
+        <div style="text-align:center;color:var(--gray-300);font-size:20px;padding:4px 0;">&#8597;</div>
+        <div class="arch-layer">
+          <div class="arch-layer-label">&#128190; Уровень данных (Data Layer)</div>
+          <div class="arch-chips">
+            <span class="arch-chip chip-blue">PostgreSQL 16</span>
+            <span class="arch-chip chip-blue">TypeORM</span>
+            <span class="arch-chip chip-orange">Redis 7</span>
+            <span class="arch-chip chip-orange">BullMQ Queues</span>
+            <span class="arch-chip chip-purple">S3 / MinIO (files)</span>
+            <span class="arch-chip chip-gray">Migrations</span>
+          </div>
+        </div>
+        <div style="text-align:center;color:var(--gray-300);font-size:20px;padding:4px 0;">&#8597;</div>
+        <div class="arch-layer">
+          <div class="arch-layer-label">&#128640; Инфраструктура (Infrastructure)</div>
+          <div class="arch-chips">
+            <span class="arch-chip chip-gray">Docker Compose</span>
+            <span class="arch-chip chip-gray">Nginx (reverse proxy)</span>
+            <span class="arch-chip chip-gray">PM2 / Node cluster</span>
+            <span class="arch-chip chip-gray">GitHub Actions CI/CD</span>
+            <span class="arch-chip chip-gray">Winston Logger</span>
+            <span class="arch-chip chip-purple">Sentry (error tracking)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TECH WHY ── -->
+    <section id="techwhy" class="section">
+      <div class="section-header">
+        <div class="section-num">12</div>
+        <div>
+          <h2>Почему именно эти технологии?</h2>
+          <p>Обоснование выбора каждого компонента стека — факты, не маркетинг</p>
+        </div>
+      </div>
+
+      <div class="tech-why-grid">
+
+        <div class="tech-why-card">
+          <div class="tech-why-name">
+            <span class="tech-badge-big" style="background:#ecfdf5;color:#059669;">NestJS</span>
+            <span style="font-size:12px;color:var(--gray-400);">Backend Framework</span>
+          </div>
+          <div class="tech-why-pros">
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Модульная архитектура</strong> — каждый модуль (Requests, Users, SLA) изолирован, легко тестируется и переиспользуется без циклических зависимостей</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>TypeScript из коробки</strong> — полная типизация DTO, entities, responses. Ошибки типов ловятся на этапе компиляции, а не в production</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Dependency Injection</strong> — сервисы внедряются автоматически, код тестируется с mock-провайдерами без сложных патчей</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>WebSocket Gateway + BullMQ</strong> — нативная поддержка через пакеты @nestjs/websockets и @nestjs/bull, конфигурируется в 10 строк</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Guards / Interceptors / Pipes</strong> — RBAC, валидация и логирование подключаются декораторами, не захламляя бизнес-логику</span></div>
+          </div>
+          <div class="tech-alt"><strong>Альтернатива:</strong> Express.js — потребует ручной настройки архитектуры, нет DI, TypeScript нужно настраивать отдельно. <strong>Fastify</strong> — быстрее, но экосистема меньше, меньше готовых решений для enterprise.</div>
+        </div>
+
+        <div class="tech-why-card">
+          <div class="tech-why-name">
+            <span class="tech-badge-big" style="background:#eff6ff;color:#2563eb;">PostgreSQL</span>
+            <span style="font-size:12px;color:var(--gray-400);">Primary Database</span>
+          </div>
+          <div class="tech-why-pros">
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>ACID транзакции</strong> — смена статуса заявки, создание assignment и отправка уведомления атомарно в одной транзакции. Никаких inconsistent states</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>JSONB поля</strong> — audit_log хранит payload (состояние до/после) в JSONB с индексацией. Гибкость NoSQL при надёжности SQL</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Partial indexes, составные индексы</strong> — можно точечно оптимизировать медленные запросы без изменения схемы</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>PostGIS-совместимость</strong> — тип POINT для геолокации, в будущем можно добавить geo-запросы (заявки рядом с объектом)</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Зрелость и надёжность</strong> — 30+ лет разработки, используется Shopify, Instagram, GitLab. Community и документация — лучшие в индустрии</span></div>
+          </div>
+          <div class="tech-alt"><strong>Альтернатива:</strong> MySQL — нет полной поддержки JSONB, слабее partial indexes. <strong>MongoDB</strong> — нет ACID по умолчанию, сложнее JOIN-запросы для аналитики.</div>
+        </div>
+
+        <div class="tech-why-card">
+          <div class="tech-why-name">
+            <span class="tech-badge-big" style="background:#fff7ed;color:#ea580c;">Redis</span>
+            <span style="font-size:12px;color:var(--gray-400);">Cache + Queue Store</span>
+          </div>
+          <div class="tech-why-pros">
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>In-memory кеш</strong> — аналитические запросы к PG занимают 200-400мс, с Redis кешем — 5-10мс. Разница в 40х для дашборда</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>BullMQ backend</strong> — SLA-таймеры, delayed jobs и очереди уведомлений хранятся в Redis. Надёжнее in-memory, переживает перезапуск сервера</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Rate limiting</strong> — Redis INCR + EXPIRE для throttle: атомарный счётчик запросов без race condition</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Session store</strong> — хранение refresh-токенов с автоматическим TTL. При logout токен просто удаляется из Redis</span></div>
+          </div>
+          <div class="tech-alt"><strong>Альтернатива:</strong> Memcached — нет поддержки структур данных (List, Set, SortedSet) нужных BullMQ. <strong>RabbitMQ</strong> — сложнее в настройке, избыточен для данного масштаба.</div>
+        </div>
+
+        <div class="tech-why-card">
+          <div class="tech-why-name">
+            <span class="tech-badge-big" style="background:#ecfeff;color:#0891b2;">React + AntD</span>
+            <span style="font-size:12px;color:var(--gray-400);">Frontend Stack</span>
+          </div>
+          <div class="tech-why-pros">
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Ant Design</strong> — enterprise UI-библиотека от Alibaba. Содержит Table, Form, DatePicker, Charts, Drawer — всё что нужно для Admin панели, без кастомной верстки</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>React Query</strong> — server state management с кешированием, background refetch, оптимистичными обновлениями. Заменяет Redux для серверных данных</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Zustand</strong> — минималистичный стейт для UI (фильтры, модалки, пользователь). Нет boilerplate как в Redux</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Vite</strong> — сборка за 8-12 секунд (webpack занял бы 60+), HMR мгновенный. Developer Experience кратно лучше</span></div>
+          </div>
+          <div class="tech-alt"><strong>Альтернатива:</strong> Next.js — SSR избыточен для Admin SPA. <strong>Vue + Element Plus</strong> — меньше специалистов на рынке. <strong>Angular</strong> — высокий порог входа, медленнее для прототипирования.</div>
+        </div>
+
+        <div class="tech-why-card">
+          <div class="tech-why-name">
+            <span class="tech-badge-big" style="background:#faf5ff;color:#7c3aed;">BullMQ</span>
+            <span style="font-size:12px;color:var(--gray-400);">Job Queue</span>
+          </div>
+          <div class="tech-why-pros">
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Delayed jobs</strong> — SLA-таймер: создать job с задержкой 4 часа, который сработает и отправит эскалацию. Невозможно с обычным setTimeout</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Retry с backoff</strong> — если Telegram API упал, уведомление повторится через 5с, 30с, 5мин. Гарантированная доставка</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Concurrency control</strong> — параллельная обработка N jobs без перегрузки внешних API (rate limit на Telegram: 30 сообщений/сек)</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Job events</strong> — NestJS слушает completed/failed события и обновляет БД или логирует результат</span></div>
+          </div>
+          <div class="tech-alt"><strong>Альтернатива:</strong> node-cron — нет delayed jobs, нет retry, нет persistent storage. <strong>Agenda</strong> — использует MongoDB вместо Redis, дополнительная зависимость.</div>
+        </div>
+
+        <div class="tech-why-card">
+          <div class="tech-why-name">
+            <span class="tech-badge-big" style="background:#ecfeff;color:#0891b2;">Telegram Bot API</span>
+            <span style="font-size:12px;color:var(--gray-400);">Mobile / Notifications</span>
+          </div>
+          <div class="tech-why-pros">
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Zero installation</strong> — пользователям не нужно скачивать отдельное приложение. Telegram уже установлен у 95%+ сотрудников</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Telegram Mini App</strong> — полноценный React SPA внутри Telegram. Работает на iOS и Android одновременно без App Store</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Push-уведомления бесплатно</strong> — Telegram Push без FCM/APNs, сертификатов и настроек. Просто sendMessage</span></div>
+            <div class="tech-pro-item"><span class="tech-pro-icon">&#10003;</span><span><strong>Авторизация через initData</strong> — безопасная идентификация пользователя без отдельного login flow в мобильном интерфейсе</span></div>
+          </div>
+          <div class="tech-alt"><strong>Альтернатива:</strong> React Native — требует отдельной разработки iOS + Android, App Store review. <strong>PWA</strong> — нет push на iOS без браузера. Telegram покрывает 90% use cases быстрее и дешевле.</div>
+        </div>
+
+      </div>
+
+      <h3>Итоговое сравнение стека</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Технология</th><th>Роль в системе</th><th>Ключевое преимущество</th><th>Зрелость</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>NestJS</strong></td><td>API Server</td><td>Модульность, DI, TypeScript</td><td><span class="badge badge-green">Production-ready</span></td></tr>
+            <tr><td><strong>PostgreSQL 16</strong></td><td>Primary DB</td><td>ACID, JSONB, Partial Index</td><td><span class="badge badge-green">30+ лет</span></td></tr>
+            <tr><td><strong>Redis 7</strong></td><td>Cache + Queue Store</td><td>In-memory скорость, TTL</td><td><span class="badge badge-green">Production-ready</span></td></tr>
+            <tr><td><strong>BullMQ</strong></td><td>Job Queue</td><td>Delayed jobs, retry, Redis-backed</td><td><span class="badge badge-green">Stable v4</span></td></tr>
+            <tr><td><strong>React 18 + Vite</strong></td><td>Frontend SPA</td><td>Concurrent mode, быстрая сборка</td><td><span class="badge badge-green">Meta-backed</span></td></tr>
+            <tr><td><strong>Ant Design 5</strong></td><td>UI Library</td><td>Enterprise-ready компоненты</td><td><span class="badge badge-green">Alibaba-backed</span></td></tr>
+            <tr><td><strong>Socket.IO</strong></td><td>Real-time</td><td>Fallback на polling, rooms, namespaces</td><td><span class="badge badge-green">10+ лет</span></td></tr>
+            <tr><td><strong>Telegram Bot API</strong></td><td>Mobile + Push</td><td>Zero install, бесплатные push</td><td><span class="badge badge-green">100M+ пользователей</span></td></tr>
+            <tr><td><strong>TypeORM</strong></td><td>ORM</td><td>Миграции, entities, DataSource</td><td><span class="badge badge-yellow">Альтернатива: Prisma</span></td></tr>
+            <tr><td><strong>Winston</strong></td><td>Logging</td><td>Structured JSON, транспорты</td><td><span class="badge badge-green">Де-факто стандарт</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── 13. DATABASE ── -->
+    <section id="database" class="section">
+      <div class="section-header">
+        <div class="section-num">10</div>
+        <div>
+          <h2>Схема базы данных</h2>
+          <p>Структура таблиц PostgreSQL и связи между ними</p>
+        </div>
+      </div>
+
+      <div class="db-schema">
+        <!-- USERS -->
+        <div class="db-table">
+          <div class="db-table-header"><span class="db-table-icon">&#128100;</span> users</div>
+          <div class="db-field"><span class="db-field-name db-pk">id</span><span class="db-field-type">UUID</span><span class="db-field-note">PK, default gen</span></div>
+          <div class="db-field"><span class="db-field-name">email</span><span class="db-field-type">VARCHAR</span><span class="db-field-note">UNIQUE, NOT NULL</span></div>
+          <div class="db-field"><span class="db-field-name">password_hash</span><span class="db-field-type">VARCHAR</span><span class="db-field-note">NOT NULL</span></div>
+          <div class="db-field"><span class="db-field-name">full_name</span><span class="db-field-type">VARCHAR</span><span class="db-field-note">NOT NULL</span></div>
+          <div class="db-field"><span class="db-field-name">role</span><span class="db-field-type">ENUM</span><span class="db-field-note">customer|manager|executor</span></div>
+          <div class="db-field"><span class="db-field-name">telegram_id</span><span class="db-field-type">BIGINT</span><span class="db-field-note">nullable, UNIQUE</span></div>
+          <div class="db-field"><span class="db-field-name">phone</span><span class="db-field-type">VARCHAR</span><span class="db-field-note">nullable</span></div>
+          <div class="db-field"><span class="db-field-name">avatar_url</span><span class="db-field-type">TEXT</span><span class="db-field-note">nullable</span></div>
+          <div class="db-field"><span class="db-field-name">is_active</span><span class="db-field-type">BOOLEAN</span><span class="db-field-note">default true</span></div>
+          <div class="db-field"><span class="db-field-name">created_at</span><span class="db-field-type">TIMESTAMP</span><span class="db-field-note">default now()</span></div>
+        </div>
+
+        <!-- REQUESTS -->
+        <div class="db-table">
+          <div class="db-table-header"><span class="db-table-icon">&#128203;</span> requests</div>
+          <div class="db-field"><span class="db-field-name db-pk">id</span><span class="db-field-type">UUID</span><span class="db-field-note">PK</span></div>
+          <div class="db-field"><span class="db-field-name">title</span><span class="db-field-type">VARCHAR</span><span class="db-field-note">NOT NULL</span></div>
+          <div class="db-field"><span class="db-field-name">description</span><span class="db-field-type">TEXT</span><span class="db-field-note">NOT NULL</span></div>
+          <div class="db-field"><span class="db-field-name">status</span><span class="db-field-type">ENUM</span><span class="db-field-note">NEW|APPROVED|...|DONE</span></div>
+          <div class="db-field"><span class="db-field-name">priority</span><span class="db-field-type">ENUM</span><span class="db-field-note">LOW|MEDIUM|HIGH|CRITICAL</span></div>
+          <div class="db-field"><span class="db-field-name">customer_id</span><span class="db-field-type">UUID</span><span class="db-field-note">FK → users</span></div>
+          <div class="db-field"><span class="db-field-name">executor_id</span><span class="db-field-type">UUID</span><span class="db-field-note">FK → users, nullable</span></div>
+          <div class="db-field"><span class="db-field-name">category_id</span><span class="db-field-type">UUID</span><span class="db-field-note">FK → categories</span></div>
+          <div class="db-field"><span class="db-field-name">object_id</span><span class="db-field-type">UUID</span><span class="db-field-note">FK → objects</span></div>
+          <div class="db-field"><span class="db-field-name">photos</span><span class="db-field-type">TEXT[]</span><span class="db-field-note">array of URLs</span></div>
+          <div class="db-field"><span class="db-field-name">location</span><span class="db-field-type">POINT</span><span class="db-field-note">nullable (lat,lng)</span></div>
+          <div class="db-field"><span class="db-field-name">sla_deadline</span><span class="db-field-type">TIMESTAMP</span><span class="db-field-note">computed on create</span></div>
+          <div class="db-field"><span class="db-field-name">sla_status</span><span class="db-field-type">ENUM</span><span class="db-field-note">ON_TIME|AT_RISK|BREACHED</span></div>
+          <div class="db-field"><span class="db-field-name">rejection_reason</span><span class="db-field-type">TEXT</span><span class="db-field-note">nullable</span></div>
+          <div class="db-field"><span class="db-field-name">created_at</span><span class="db-field-type">TIMESTAMP</span><span class="db-field-note">default now()</span></div>
+          <div class="db-field"><span class="db-field-name">updated_at</span><span class="db-field-type">TIMESTAMP</span><span class="db-field-note">auto-update</span></div>
+          <div class="db-field"><span class="db-field-name">closed_at</span><span class="db-field-type">TIMESTAMP</span><span class="db-field-note">nullable</span></div>
+        </div>
+
+        <!-- GROUPS -->
+        <div class="db-table">
+          <div class="db-table-header"><span class="db-table-icon">&#128281;</span> groups</div>
+          <div class="db-field"><span class="db-field-name db-pk">id</span><span class="db-field-type">UUID</span><span class="db-field-note">PK</span></div>
+          <div class="db-field"><span class="db-field-name">name</span><span class="db-field-type">VARCHAR</span><span class="db-field-note">NOT NULL</span></div>
+          <div class="db-field"><span class="db-field-name">description</span><span class="db-field-type">TEXT</span><span class="db-field-note">nullable</span></div>
+          <div class="db-field"><span class="db-field-name">icon</span><span class="db-field-type">VARCHAR</span><span class="db-field-note">emoji/icon name</span></div>
+          <div class="db-field"><span class="db-field-name">is_active</span><span class="db-field-type">BOOLEAN</span><span class="db-field-note">default true</span></div>
+          <div class="db-field"><span class="db-field-name">created_at</span><span class="db-field-type">TIMESTAMP</span><span class="db-field-note">default now()</span></div>
+        </div>
+
+        <!-- CATEGORIES -->
+        <div class="db-table">
+          <div class="db-table-header"><span class="db-table-icon">&#127991;</span> categories</div>
+          <div class="db-field"><span class="db-field-name db-pk">id</span><span class="db-field-type">UUID</span><span class="db-field-note">PK</span></div>
+          <div class="db-field"><span class="db-field-name">name</span><span class="db-field-type">VARCHAR</span><span class="db-field-note">NOT NULL</span></div>
+          <div class="db-field"><span class="db-field-name">group_id</span><span class="db-field-type">UUID</span><span class="db-field-note">FK → groups</span></div>
+          <div class="db-field"><span class="db-field-name">default_sla_hours</span><span class="db-field-type">INTEGER</span><span class="db-field-note">nullable</span></div>
+          <div class="db-field"><span class="db-field-name">is_active</span><span class="db-field-type">BOOLEAN</span><span class="db-field-note">default true</span></div>
+          <div class="db-field"><span class="db-field-name">sort_order</span><span class="db-field-type">INTEGER</span><span class="db-field-note">for sorting</span></div>
+        </div>
+
+        <!-- ASSIGNMENTS -->
+        <div class="db-table">
+          <div class="db-table-header"><span class="db-table-icon">&#128101;</span> assignments</div>
+          <div class="db-field"><span class="db-field-name db-pk">id</span><span class="db-field-type">UUID</span><span class="db-field-note">PK</span></div>
+          <div class="db-field"><span class="db-field-name">request_id</span><span class="db-field-type">UUID</span><span class="db-field-note">FK → requests</span></div>
+          <div class="db-field"><span class="db-field-name">executor_id</span><span class="db-field-type">UUID</span><span class="db-field-note">FK → users</span></div>
+          <div class="db-field"><span class="db-field-name">assigned_by</span><span class="db-field-type">UUID</span><span class="db-field-note">FK → users (manager)</span></div>
+          <div class="db-field"><span class="db-field-name">assigned_at</span><span class="db-field-type">TIMESTAMP</span><span class="db-field-note">default now()</span></div>
+          <div class="db-field"><span class="db-field-name">note</span><span class="db-field-type">TEXT</span><span class="db-field-note">nullable</span></div>
+        </div>
+
+        <!-- COMMENTS -->
+        <div class="db-table">
+          <div class="db-table-header"><span class="db-table-icon">&#128172;</span> comments</div>
+          <div class="db-field"><span class="db-field-name db-pk">id</span><span class="db-field-type">UUID</span><span class="db-field-note">PK</span></div>
+          <div class="db-field"><span class="db-field-name">request_id</span><span class="db-field-type">UUID</span><span class="db-field-note">FK → requests</span></div>
+          <div class="db-field"><span class="db-field-name">author_id</span><span class="db-field-type">UUID</span><span class="db-field-note">FK → users</span></div>
+          <div class="db-field"><span class="db-field-name">text</span><span class="db-field-type">TEXT</span><span class="db-field-note">NOT NULL</span></div>
+          <div class="db-field"><span class="db-field-name">attachments</span><span class="db-field-type">TEXT[]</span><span class="db-field-note">nullable</span></div>
+          <div class="db-field"><span class="db-field-name">is_internal</span><span class="db-field-type">BOOLEAN</span><span class="db-field-note">виден только менеджерам</span></div>
+          <div class="db-field"><span class="db-field-name">created_at</span><span class="db-field-type">TIMESTAMP</span><span class="db-field-note">default now()</span></div>
+        </div>
+      </div>
+
+      <h3>Дополнительные таблицы</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Таблица</th><th>Назначение</th><th>Ключевые поля</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>objects</code></td><td>Справочник объектов (ПБО / Филиалы)</td><td>id, name, address, region, type</td></tr>
+            <tr><td><code>audit_logs</code></td><td>Полный журнал действий в системе</td><td>id, user_id, action, entity, payload, ip, created_at</td></tr>
+            <tr><td><code>notifications</code></td><td>Хранение истории уведомлений</td><td>id, user_id, type, message, is_read, created_at</td></tr>
+            <tr><td><code>sla_configs</code></td><td>Настройки SLA по приоритетам</td><td>id, priority, response_hours, resolution_hours</td></tr>
+            <tr><td><code>refresh_tokens</code></td><td>JWT refresh-токены пользователей</td><td>id, user_id, token_hash, expires_at, revoked</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── 11. API ── -->
+    <section id="api" class="section">
+      <div class="section-header">
+        <div class="section-num">11</div>
+        <div>
+          <h2>API Спецификация</h2>
+          <p>REST API endpoints, параметры запросов и форматы ответов</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">&#8505;</div>
+        <div class="callout-body">
+          <div class="callout-title">Базовый URL и формат</div>
+          <div class="callout-text">Все запросы направляются на <code>https://api.fixflow.app/v1</code>. Формат данных: JSON. Авторизация: заголовок <code>Authorization: Bearer &lt;jwt_token&gt;</code>. Документация Swagger доступна по пути <code>/api/docs</code>.</div>
+        </div>
+      </div>
+
+      <h3>Авторизация</h3>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-post">POST</span><span class="api-path">/auth/login</span><span class="api-desc">Вход пользователя</span></div>
+        <div class="api-body">Body: <code>{ email, password }</code> → Response: <code>{ access_token, refresh_token, user }</code></div>
+      </div>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-post">POST</span><span class="api-path">/auth/refresh</span><span class="api-desc">Обновление токена</span></div>
+        <div class="api-body">Body: <code>{ refresh_token }</code> → Response: <code>{ access_token }</code></div>
+      </div>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-post">POST</span><span class="api-path">/auth/telegram</span><span class="api-desc">Вход через Telegram initData</span></div>
+        <div class="api-body">Body: <code>{ initData }</code> (Telegram WebApp) → Response: <code>{ access_token, user }</code></div>
+      </div>
+
+      <h3>Заявки (Requests)</h3>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-get">GET</span><span class="api-path">/requests</span><span class="api-desc">Список заявок (с фильтрами)</span></div>
+        <div class="api-body">Query: <code>status, priority, category_id, object_id, executor_id, date_from, date_to, page, limit, sort</code> → Paginated list</div>
+      </div>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-post">POST</span><span class="api-path">/requests</span><span class="api-desc">Создание заявки</span></div>
+        <div class="api-body">Body: <code>{ title, description, priority, category_id, object_id, photos?, location? }</code> → Created request</div>
+      </div>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-get">GET</span><span class="api-path">/requests/:id</span><span class="api-desc">Детали заявки</span></div>
+        <div class="api-body">Response: полный объект заявки с включёнными relations: customer, executor, category, comments, assignments</div>
+      </div>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-patch">PATCH</span><span class="api-path">/requests/:id/status</span><span class="api-desc">Изменение статуса</span></div>
+        <div class="api-body">Body: <code>{ status: 'APPROVED' | 'REJECTED' | 'IN_PROGRESS' | 'DONE', reason? }</code> — Валидируется RBAC и FSM</div>
+      </div>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-patch">PATCH</span><span class="api-path">/requests/:id/assign</span><span class="api-desc">Назначение исполнителя</span></div>
+        <div class="api-body">Body: <code>{ executor_id: UUID, note? }</code> — Только для менеджеров. Создаёт запись в assignments</div>
+      </div>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-post">POST</span><span class="api-path">/requests/:id/comments</span><span class="api-desc">Добавить комментарий</span></div>
+        <div class="api-body">Body: <code>{ text, attachments?: string[], is_internal?: boolean }</code></div>
+      </div>
+
+      <h3>Аналитика</h3>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-get">GET</span><span class="api-path">/analytics/summary</span><span class="api-desc">Сводные KPI-метрики</span></div>
+        <div class="api-body">Query: <code>date_from, date_to, object_id?</code> → <code>{ total, by_status, by_priority, avg_resolution_time, sla_rate }</code></div>
+      </div>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-get">GET</span><span class="api-path">/analytics/by-category</span><span class="api-desc">Разбивка по категориям</span></div>
+        <div class="api-body">Query: <code>date_from, date_to</code> → массив <code>{ category_name, count, avg_time }</code></div>
+      </div>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-get">GET</span><span class="api-path">/analytics/executors</span><span class="api-desc">KPI по исполнителям</span></div>
+        <div class="api-body">Response: <code>[{ executor_id, name, completed, avg_time, sla_rate, rating }]</code></div>
+      </div>
+
+      <h3>Файлы</h3>
+      <div class="api-endpoint">
+        <div class="api-header"><span class="method method-post">POST</span><span class="api-path">/uploads</span><span class="api-desc">Загрузка файлов/фото</span></div>
+        <div class="api-body">Content-Type: <code>multipart/form-data</code>, field: <code>files</code> (до 5 файлов) → <code>{ urls: string[] }</code>. Загружается в S3/MinIO.</div>
+      </div>
+    </section>
+
+    <!-- ── 12. SECURITY ── -->
+    <section id="security" class="section">
+      <div class="section-header">
+        <div class="section-num">12</div>
+        <div>
+          <h2>Безопасность</h2>
+          <p>JWT, RBAC, шифрование и защита от уязвимостей</p>
+        </div>
+      </div>
+
+      <div class="security-grid">
+        <div class="security-item">
+          <div class="security-icon">&#128274;</div>
+          <div class="security-title">JWT Auth</div>
+          <div class="security-desc">Access token (15 мин) + Refresh token (30 дней). Хранение RT в httpOnly cookie. Rotation при обновлении.</div>
+        </div>
+        <div class="security-item">
+          <div class="security-icon">&#128101;</div>
+          <div class="security-title">RBAC</div>
+          <div class="security-desc">Декоратор <code>@Roles()</code> на каждом endpoint. Guard проверяет роль из JWT payload перед выполнением.</div>
+        </div>
+        <div class="security-item">
+          <div class="security-icon">&#128170;</div>
+          <div class="security-title">Bcrypt</div>
+          <div class="security-desc">Пароли хешируются bcrypt с salt rounds = 12. В БД хранится только хеш, не открытый пароль.</div>
+        </div>
+        <div class="security-item">
+          <div class="security-icon">&#128737;</div>
+          <div class="security-title">Rate Limiting</div>
+          <div class="security-desc">Throttle Guard: 100 req/min для обычных, 10 req/min для auth endpoints. Redis-based counter.</div>
+        </div>
+        <div class="security-item">
+          <div class="security-icon">&#128269;</div>
+          <div class="security-title">Валидация</div>
+          <div class="security-desc">class-validator + class-transformer на всех DTO. Whitelist-режим: лишние поля отклоняются.</div>
+        </div>
+        <div class="security-item">
+          <div class="security-icon">&#128421;</div>
+          <div class="security-title">CORS / Helmet</div>
+          <div class="security-desc">Список разрешённых origins в конфиге. Helmet.js устанавливает security-заголовки (CSP, HSTS, X-Frame).</div>
+        </div>
+      </div>
+
+      <h3>Ресурсная изоляция данных</h3>
+      <div class="callout callout-warning">
+        <div class="callout-icon">&#9888;</div>
+        <div class="callout-body">
+          <div class="callout-title">Принцип минимальных привилегий</div>
+          <div class="callout-text">Заказчик видит только свои заявки (<code>WHERE customer_id = req.user.id</code>). Исполнитель — только назначенные ему заявки. Менеджер — все заявки своей организации. Фильтрация происходит на уровне сервисного слоя, не в контроллере.</div>
+        </div>
+      </div>
+
+      <h3>Безопасность Telegram Mini App</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Угроза</th><th>Защита</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Подделка initData</td><td>Верификация HMAC-SHA256 подписи через bot token на бэкенде</td></tr>
+            <tr><td>Replay-атаки</td><td>Проверка <code>auth_date</code>: не старше 300 секунд</td></tr>
+            <tr><td>Перехват токена</td><td>HTTPS only, JWT в памяти (не localStorage)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── 13. AUDIT ── -->
+    <section id="audit" class="section">
+      <div class="section-header">
+        <div class="section-num">13</div>
+        <div>
+          <h2>Аудит и логирование</h2>
+          <p>Полный журнал действий и система структурированного логирования</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-purple">&#128196;</div> Audit Log</div>
+          <p style="font-size:13px;margin-bottom:10px;">Каждое действие пользователя записывается в таблицу <code>audit_logs</code>:</p>
+          <ul class="feature-list">
+            <li>Кто совершил действие (user_id, email, role)</li>
+            <li>Что сделал (action: CREATE | UPDATE | DELETE | LOGIN)</li>
+            <li>Над чем (entity: requests, users, categories…)</li>
+            <li>Payload: снепшот состояния до и после</li>
+            <li>IP-адрес и User-Agent</li>
+            <li>Timestamp с точностью до миллисекунды</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-cyan">&#128295;</div> Application Logging</div>
+          <p style="font-size:13px;margin-bottom:10px;">Структурированное логирование через <strong>Winston</strong>:</p>
+          <ul class="feature-list">
+            <li>Уровни: error, warn, info, debug</li>
+            <li>Формат: JSON (для агрегаторов)</li>
+            <li>Транспорты: console + file rotation</li>
+            <li>Correlation ID (X-Request-ID) в каждом запросе</li>
+            <li>Middleware логирует все HTTP запросы (метод, путь, статус, время)</li>
+            <li>Sentry для error tracking и alerting</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Таблица audit_logs — схема</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Поле</th><th>Тип</th><th>Описание</th><th>Пример</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>id</code></td><td>UUID</td><td>PK</td><td>uuid-v4</td></tr>
+            <tr><td><code>user_id</code></td><td>UUID</td><td>FK → users</td><td>Исполнитель действия</td></tr>
+            <tr><td><code>user_role</code></td><td>VARCHAR</td><td>Роль в момент действия</td><td>manager</td></tr>
+            <tr><td><code>action</code></td><td>ENUM</td><td>Тип действия</td><td>STATUS_CHANGED</td></tr>
+            <tr><td><code>entity_type</code></td><td>VARCHAR</td><td>Тип объекта</td><td>request</td></tr>
+            <tr><td><code>entity_id</code></td><td>UUID</td><td>ID изменённого объекта</td><td>uuid заявки</td></tr>
+            <tr><td><code>old_value</code></td><td>JSONB</td><td>Состояние до</td><td><code>{"status":"NEW"}</code></td></tr>
+            <tr><td><code>new_value</code></td><td>JSONB</td><td>Состояние после</td><td><code>{"status":"APPROVED"}</code></td></tr>
+            <tr><td><code>ip_address</code></td><td>INET</td><td>IP клиента</td><td>192.168.1.100</td></tr>
+            <tr><td><code>user_agent</code></td><td>TEXT</td><td>Браузер/клиент</td><td>Mozilla/5.0…</td></tr>
+            <tr><td><code>created_at</code></td><td>TIMESTAMP</td><td>Время действия</td><td>2025-04-01 14:23:11.847</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── 17. ROADMAP ── -->
+    <section id="roadmap" class="section">
+      <div class="section-header">
+        <div class="section-num">17</div>
+        <div>
+          <h2>Детальный план разработки — 5 месяцев</h2>
+          <p>Помесячная разбивка задач, deliverables, команда и риски</p>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">&#128197;</div>
+        <div class="callout-body">
+          <div class="callout-title">Старт: Май 2025 — Завершение: Сентябрь 2025</div>
+          <div class="callout-text">Всего 20 рабочих недель / 10 двухнедельных спринтов. Команда: 1 Tech Lead / Backend Dev, 1 Frontend Dev, 1 Full-stack (Telegram + интеграции), 1 QA Engineer (с 3-го месяца). Методология: Agile Scrum, спринты по 2 недели, ретро каждую пятницу.</div>
+        </div>
+      </div>
+
+      <!-- MONTH TIMELINE -->
+      <div class="month-timeline">
+        <div class="month-block m1">
+          <div class="month-num">Месяц 1</div>
+          <div class="month-name">Май 2025</div>
+          <div class="month-task">Настройка инфраструктуры (Docker, CI/CD, PostgreSQL, Redis)</div>
+          <div class="month-task">Схема БД: users, requests, categories, groups, objects</div>
+          <div class="month-task">JWT аутентификация + RBAC (4 роли)</div>
+          <div class="month-task">REST API: CRUD заявок, статусная машина</div>
+          <div class="month-task">Базовый React SPA: форма создания + таблица заявок</div>
+          <div class="month-task">Super Admin: управление пользователями и орг-циями</div>
+          <div class="month-deliverable" style="background:#eff6ff;color:#2563eb;">&#127937; MVP Backend готов</div>
+        </div>
+        <div class="month-block m2">
+          <div class="month-num">Месяц 2</div>
+          <div class="month-name">Июнь 2025</div>
+          <div class="month-task">WebSocket Gateway (Socket.IO) + real-time уведомления</div>
+          <div class="month-task">BullMQ: SLA-таймеры, delayed jobs, эскалации</div>
+          <div class="month-task">Telegram Bot: уведомления при смене статуса</div>
+          <div class="month-task">Загрузка файлов (S3/MinIO): фото к заявкам</div>
+          <div class="month-task">Комментарии к заявкам + internal notes</div>
+          <div class="month-task">Геолокация: получение координат и отображение</div>
+          <div class="month-deliverable" style="background:#ecfeff;color:#0891b2;">&#128172; Real-time + Telegram готов</div>
+        </div>
+        <div class="month-block m3">
+          <div class="month-num">Месяц 3</div>
+          <div class="month-name">Июль 2025</div>
+          <div class="month-task">Analytics Dashboard: KPI виджеты, Bar/Pie/Line графики</div>
+          <div class="month-task">Отчёты: по категориям, филиалам, исполнителям</div>
+          <div class="month-task">Экспорт в Excel/CSV (background job)</div>
+          <div class="month-task">Telegram Mini App (React): экраны заказчика и исполнителя</div>
+          <div class="month-task">Audit log UI: просмотр в Super Admin панели</div>
+          <div class="month-task">Redis кеширование аналитики + оптимизация запросов</div>
+          <div class="month-deliverable" style="background:#fffbeb;color:#d97706;">&#128202; Analytics + Mini App готов</div>
+        </div>
+        <div class="month-block m4">
+          <div class="month-num">Месяц 4</div>
+          <div class="month-name">Август 2025</div>
+          <div class="month-task">QA: написание E2E тестов (Playwright)</div>
+          <div class="month-task">Unit и integration тесты (Jest, coverage &gt; 70%)</div>
+          <div class="month-task">Load testing: k6 сценарии (100 / 500 VU)</div>
+          <div class="month-task">Sentry + Grafana мониторинг в production</div>
+          <div class="month-task">Swagger документация всех API endpoint</div>
+          <div class="month-task">Исправление найденных багов и UX-улучшения</div>
+          <div class="month-task">Security аудит: OWASP Top 10 checklist</div>
+          <div class="month-deliverable" style="background:#ecfdf5;color:#059669;">&#10003; QA + Production-ready</div>
+        </div>
+        <div class="month-block m5">
+          <div class="month-num">Месяц 5</div>
+          <div class="month-name">Сентябрь 2025</div>
+          <div class="month-task">Пилотный запуск с реальными пользователями (beta)</div>
+          <div class="month-task">Обучение менеджеров и исполнителей</div>
+          <div class="month-task">Документация: руководства пользователей (PDF)</div>
+          <div class="month-task">Настройка бэкапов (daily + weekly S3)</div>
+          <div class="month-task">Onboarding: настройка справочников под клиента</div>
+          <div class="month-task">Сбор обратной связи и roadmap v2</div>
+          <div class="month-deliverable" style="background:#faf5ff;color:#7c3aed;">&#128640; Полный Production Launch</div>
+        </div>
+      </div>
+
+      <h3>Подробный спринт-план</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Спринт</th><th>Даты</th><th>Задачи</th><th>Deliverable</th><th>Ответственный</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-blue">Sprint 1</span></td>
+              <td style="white-space:nowrap;font-size:12px;">01–14 Май</td>
+              <td style="font-size:12px;">Инфраструктура, Docker Compose, CI/CD (GitHub Actions), схема БД v1, TypeORM entities</td>
+              <td><span class="badge badge-gray">Infra Ready</span></td>
+              <td style="font-size:12px;">Tech Lead</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-blue">Sprint 2</span></td>
+              <td style="white-space:nowrap;font-size:12px;">15–28 Май</td>
+              <td style="font-size:12px;">JWT Auth, RBAC (4 роли), регистрация/логин, Super Admin CRUD пользователей, базовый UI login</td>
+              <td><span class="badge badge-green">Auth Done</span></td>
+              <td style="font-size:12px;">Tech Lead + Frontend</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-cyan">Sprint 3</span></td>
+              <td style="white-space:nowrap;font-size:12px;">29 Май – 11 Июн</td>
+              <td style="font-size:12px;">CRUD заявок, статусная машина (FSM), назначение исполнителя, таблица заявок в UI с фильтрами</td>
+              <td><span class="badge badge-green">Core Flow</span></td>
+              <td style="font-size:12px;">Все</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-cyan">Sprint 4</span></td>
+              <td style="white-space:nowrap;font-size:12px;">12–25 Июн</td>
+              <td style="font-size:12px;">WebSocket уведомления, Telegram Bot уведомления, BullMQ setup, SLA-таймеры для CRITICAL/HIGH</td>
+              <td><span class="badge badge-green">Notifications</span></td>
+              <td style="font-size:12px;">Tech Lead + FullStack</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-yellow">Sprint 5</span></td>
+              <td style="white-space:nowrap;font-size:12px;">26 Июн – 9 Июл</td>
+              <td style="font-size:12px;">Загрузка фото (S3), геолокация, комментарии, SLA для MEDIUM/LOW, Admin Super UI (tenants, queues)</td>
+              <td><span class="badge badge-yellow">Files + SLA</span></td>
+              <td style="font-size:12px;">FullStack + Frontend</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-yellow">Sprint 6</span></td>
+              <td style="white-space:nowrap;font-size:12px;">10–23 Июл</td>
+              <td style="font-size:12px;">Analytics API (summary, by-category, executors), Dashboard UI с графиками, KPI виджеты, Redis кеш</td>
+              <td><span class="badge badge-yellow">Analytics</span></td>
+              <td style="font-size:12px;">Frontend + Tech Lead</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-orange">Sprint 7</span></td>
+              <td style="white-space:nowrap;font-size:12px;">24 Июл – 6 Авг</td>
+              <td style="font-size:12px;">Telegram Mini App (React): все экраны заказчика и исполнителя, авторизация по initData</td>
+              <td><span class="badge badge-orange">Mini App</span></td>
+              <td style="font-size:12px;">FullStack</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-orange">Sprint 8</span></td>
+              <td style="white-space:nowrap;font-size:12px;">07–20 Авг</td>
+              <td style="font-size:12px;">Экспорт Excel, audit log UI, Swagger документация, оптимизация PG индексов, security audit</td>
+              <td><span class="badge badge-orange">Polish</span></td>
+              <td style="font-size:12px;">Все</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-purple">Sprint 9</span></td>
+              <td style="white-space:nowrap;font-size:12px;">21 Авг – 3 Сен</td>
+              <td style="font-size:12px;">E2E тесты (Playwright), load tests (k6), Sentry + Grafana production, исправление багов QA</td>
+              <td><span class="badge badge-purple">QA Done</span></td>
+              <td style="font-size:12px;">QA + Tech Lead</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-purple">Sprint 10</span></td>
+              <td style="white-space:nowrap;font-size:12px;">04–17 Сен</td>
+              <td style="font-size:12px;">Beta-запуск с реальными юзерами, онбординг клиента, настройка бэкапов, документация пользователей</td>
+              <td><span class="badge badge-green">&#128640; Launch</span></td>
+              <td style="font-size:12px;">Все</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Состав команды и роли</h3>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-blue">&#128187;</div> Tech Lead / Backend Dev</div>
+          <ul class="feature-list">
+            <li>NestJS архитектура, модули, guards</li>
+            <li>PostgreSQL схема и миграции</li>
+            <li>Redis + BullMQ интеграция</li>
+            <li>Code review всей команды</li>
+            <li>CI/CD и DevOps (Docker, Nginx)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-green">&#128241;</div> Frontend Dev</div>
+          <ul class="feature-list">
+            <li>React + Ant Design Web приложение</li>
+            <li>Dashboard и аналитика (Recharts)</li>
+            <li>Формы создания заявок</li>
+            <li>Интеграция с REST API и WebSocket</li>
+            <li>Оптимизация производительности UI</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><div class="card-icon icon-cyan">&#9992;</div> FullStack (Telegram)</div>
+          <ul class="feature-list">
+            <li>Telegram Bot (уведомления, команды)</li>
+            <li>Telegram Mini App (React TWA)</li>
+            <li>Интеграции: S3/MinIO, геолокация</li>
+            <li>Вспомогательные API endpoints</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>Риски и митигация</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Риск</th><th>Вероятность</th><th>Влияние</th><th>Митигация</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Смена требований в процессе разработки</td>
+              <td><span class="badge badge-yellow">Средняя</span></td>
+              <td><span class="badge badge-orange">Высокое</span></td>
+              <td>Change request процесс, оценка impact, буфер 10% времени на Sprint 9-10</td>
+            </tr>
+            <tr>
+              <td>Задержка Telegram API / ограничения</td>
+              <td><span class="badge badge-gray">Низкая</span></td>
+              <td><span class="badge badge-yellow">Среднее</span></td>
+              <td>Retry механизм BullMQ, fallback на email уведомления</td>
+            </tr>
+            <tr>
+              <td>Нехватка ресурсов команды</td>
+              <td><span class="badge badge-yellow">Средняя</span></td>
+              <td><span class="badge badge-orange">Высокое</span></td>
+              <td>Приоритизация функционала (MoSCoW), сдвиг Nice-to-have на v2</td>
+            </tr>
+            <tr>
+              <td>Проблемы с производительностью БД</td>
+              <td><span class="badge badge-gray">Низкая</span></td>
+              <td><span class="badge badge-yellow">Среднее</span></td>
+              <td>Индексы с Sprint 3, Redis кеш с Sprint 6, EXPLAIN ANALYZE на каждом сложном запросе</td>
+            </tr>
+            <tr>
+              <td>Уязвимости безопасности</td>
+              <td><span class="badge badge-gray">Низкая</span></td>
+              <td><span class="badge badge-red">Критическое</span></td>
+              <td>OWASP audit на Sprint 8, npm audit в CI/CD, SAST (CodeQL)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Нефункциональные требования</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Параметр</th><th>Требование</th><th>Способ измерения</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Доступность (Availability)</td><td>99.5% uptime</td><td>Мониторинг uptime + алерты Grafana</td></tr>
+            <tr><td>Время отклика API (P50)</td><td>&lt; 80мс</td><td>Grafana / APM traces</td></tr>
+            <tr><td>Время отклика API (P95)</td><td>&lt; 250мс</td><td>k6 нагрузочные тесты</td></tr>
+            <tr><td>Пропускная способность</td><td>500 RPS REST, 1 000 WS connections</td><td>k6 stress test</td></tr>
+            <tr><td>FCP (First Contentful Paint)</td><td>&lt; 1.2с</td><td>Lighthouse, Sentry Performance</td></tr>
+            <tr><td>Хранение данных</td><td>Retention 3 года, бэкап каждые 24ч</td><td>Cron + S3 backup</td></tr>
+            <tr><td>Безопасность</td><td>OWASP Top 10 compliance</td><td>SAST CodeQL + ручной аудит</td></tr>
+            <tr><td>Тест-покрытие (Unit)</td><td>&gt; 70% coverage</td><td>Jest coverage report в CI</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <div class="footer">
+      <div class="footer-right">
+        Разработано Azdev 
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+  // Active nav highlight on scroll
+  const sections = document.querySelectorAll('.section[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(item => item.classList.remove('active'));
+        const active = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-80px 0px -60% 0px', threshold: 0 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>
